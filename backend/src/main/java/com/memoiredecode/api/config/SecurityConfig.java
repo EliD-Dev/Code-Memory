@@ -38,6 +38,14 @@ public class SecurityConfig {
             .oauth2Login(oauth2 -> oauth2
                 // Redirige vers React (http://localhost:5173) après le succès de l'authentification GitHub
                 .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(allowedOrigins))
+            )
+            .logout(logout -> logout
+                .logoutUrl("/api/auth/logout")
+                .logoutSuccessHandler((exchange, authentication) -> {
+                    exchange.getExchange().getResponse().setStatusCode(HttpStatus.FOUND);
+                    exchange.getExchange().getResponse().getHeaders().setLocation(java.net.URI.create(allowedOrigins));
+                    return exchange.getExchange().getSession().flatMap(org.springframework.web.server.WebSession::invalidate);
+                })
             );
         return http.build();
     }
