@@ -24,6 +24,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+        org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler logoutSuccessHandler = 
+            new org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler();
+        logoutSuccessHandler.setLogoutSuccessUrl(java.net.URI.create(allowedOrigins));
+
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
@@ -32,7 +36,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED))
             )
             .authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/api/auth/status").permitAll()
+                .pathMatchers("/api/auth/status", "/api/auth/logout").permitAll()
                 .anyExchange().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
@@ -40,12 +44,9 @@ public class SecurityConfig {
                 .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(allowedOrigins))
             )
             .logout(logout -> logout
-                .logoutUrl("/api/auth/logout")
-                .logoutSuccessHandler((exchange, authentication) -> {
-                    exchange.getExchange().getResponse().setStatusCode(HttpStatus.FOUND);
-                    exchange.getExchange().getResponse().getHeaders().setLocation(java.net.URI.create(allowedOrigins));
-                    return exchange.getExchange().getSession().flatMap(org.springframework.web.server.WebSession::invalidate);
-                })
+                .requiresLogout(org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers(
+                    org.springframework.http.HttpMethod.GET, "/api/auth/logout"))
+                .logoutSuccessHandler(logoutSuccessHandler)
             );
         return http.build();
     }

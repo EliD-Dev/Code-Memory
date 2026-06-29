@@ -27,7 +27,14 @@ public class GithubAnalysisService {
         ConfigManifest configManifest,
         List<CriticalFile> criticalFiles,
         Dependencies dependencies,
-        List<Decision> decisions
+        List<Decision> decisions,
+        List<TopContributor> topContributors
+    ) {}
+
+    public record TopContributor(
+        String name,
+        String avatarUrl,
+        int commitCount
     ) {}
 
     public record Identity(
@@ -197,10 +204,13 @@ public class GithubAnalysisService {
 
                             // 7. Critical Files
                             return getCriticalFilesScore(owner, repo, treeFiles, commitsData, authHeader)
-                                .map(criticalFiles -> {
-                                    Identity identity = new Identity(summary, stack, infrastructure);
-                                    ConfigManifest configManifest = new ConfigManifest(variables, prerequisites);
-                                    return new AnalysisResponse(identity, configManifest, criticalFiles, dependencies, decisions);
+                                .flatMap(criticalFiles -> {
+                                    return getTopContributorsForFiles(owner, repo, criticalFiles, authHeader)
+                                        .map(topContributors -> {
+                                            Identity identity = new Identity(summary, stack, infrastructure);
+                                            ConfigManifest configManifest = new ConfigManifest(variables, prerequisites);
+                                            return new AnalysisResponse(identity, configManifest, criticalFiles, dependencies, decisions, topContributors);
+                                        });
                                 });
                         });
                 });
@@ -618,32 +628,32 @@ public class GithubAnalysisService {
         String lower = message.toLowerCase();
         int score = 0;
 
-        // Foundation: +50
-        String[] foundationKeywords = {"install", "init", "setup", "base", "start", "config"};
+        // Foundation: +50 (EN, FR, ES)
+        String[] foundationKeywords = {"init", "setup", "start", "base", "config", "debut", "initialisation", "configuracion", "inicio"};
         for (String keyword : foundationKeywords) {
             if (lower.contains(keyword)) {
                 score += 50;
             }
         }
 
-        // Arch/Domain: +40
-        String[] archKeywords = {"crud", "role", "voter", "auth", "security", "login", "api", "database", "table", "entity", "migration", "docker"};
+        // Arch/Domain: +40 (EN, FR, ES)
+        String[] archKeywords = {"crud", "role", "voter", "auth", "security", "login", "api", "database", "table", "entity", "migration", "docker", "seguridad", "modelo"};
         for (String keyword : archKeywords) {
             if (lower.contains(keyword)) {
                 score += 40;
             }
         }
 
-        // Quality: +30
-        String[] qualityKeywords = {"test", "phpunit", "jest", "ci", "pipeline", "filtre"};
+        // Quality: +30 (EN, FR, ES)
+        String[] qualityKeywords = {"test", "phpunit", "jest", "ci", "pipeline", "filtre", "filtro", "prueba"};
         for (String keyword : qualityKeywords) {
             if (lower.contains(keyword)) {
                 score += 30;
             }
         }
 
-        // Exclusions: -100
-        String[] exclusionKeywords = {"typo", "oubli", "oublié", "fix", "wip", "readme", "license"};
+        // Exclusions: -100 (EN, FR, ES)
+        String[] exclusionKeywords = {"typo", "oubli", "fix", "wip", "readme", "license", "arreglo", "olvido", "error"};
         for (String keyword : exclusionKeywords) {
             if (lower.contains(keyword)) {
                 score -= 100;
@@ -972,6 +982,83 @@ public class GithubAnalysisService {
         }
 
         return "Projet " + repo + " analysé automatiquement. Ce dépôt contient une architecture structurée avec des composants d'intégration Git.";
+    }
+
+    private record ContributorInfo(String name, String avatarUrl, int commitCount) {}
+
+    private Mono<List<TopContributor>> getTopContributorsForFiles(String owner, String repo, List<CriticalFile> criticalFiles, String authHeader) {
+        if (criticalFiles == null || criticalFiles.isEmpty()) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        List<Mono<List<Map>>> fileCommitsMonos = criticalFiles.stream()
+            .limit(5)
+            .map(cf -> this.webClient.get()
+                .uri("/repos/{owner}/{repo}/commits?path={path}&per_page=15", owner, repo, cf.path())
+                .header("Authorization", authHeader)
+                .header("Accept", "application/vnd.github.v3+json")
+                .retrieve()
+                .bodyToMono(List.class)
+                .map(list -> {
+                    List<Map> res = new ArrayList<>();
+                    if (list != null) {
+                        for (Object o : list) {
+                            if (o instanceof Map) {
+                                res.add((Map) o);
+                            }
+                        }
+                    }
+                    return res;
+                })
+                .onErrorReturn(Collections.emptyList())
+            )
+            .collect(Collectors.toList());
+
+        return Mono.zip(fileCommitsMonos, results -> {
+            Map<String, ContributorInfo> contributorsMap = new HashMap<>();
+            for (Object resultListObj : results) {
+                List<Map> commitList = (List<Map>) resultListObj;
+                for (Map commitMap : commitList) {
+                    if (commitMap == null) continue;
+
+                    Map authorMap = (Map) commitMap.get("author");
+                    Map commitDetail = (Map) commitMap.get("commit");
+                    Map gitAuthor = commitDetail != null ? (Map) commitDetail.get("author") : null;
+
+                    String login = null;
+                    String avatarUrl = null;
+                    if (authorMap != null) {
+                        login = (String) authorMap.get("login");
+                        avatarUrl = (String) authorMap.get("avatar_url");
+                    }
+
+                    String name = login;
+                    if (name == null && gitAuthor != null) {
+                        name = (String) gitAuthor.get("name");
+                    }
+
+                    if (name == null || name.trim().isEmpty()) {
+                        continue;
+                    }
+
+                    if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+                        avatarUrl = "";
+                    }
+
+                    ContributorInfo info = contributorsMap.getOrDefault(name, new ContributorInfo(name, avatarUrl, 0));
+                    if (info.avatarUrl().isEmpty() && !avatarUrl.isEmpty()) {
+                        info = new ContributorInfo(name, avatarUrl, info.commitCount());
+                    }
+                    contributorsMap.put(name, new ContributorInfo(name, info.avatarUrl(), info.commitCount() + 1));
+                }
+            }
+
+            return contributorsMap.values().stream()
+                .sorted((c1, c2) -> Integer.compare(c2.commitCount(), c1.commitCount()))
+                .limit(3)
+                .map(c -> new TopContributor(c.name(), c.avatarUrl(), c.commitCount()))
+                .collect(Collectors.toList());
+        });
     }
 
     private String cleanCommitMessage(String msg) {
