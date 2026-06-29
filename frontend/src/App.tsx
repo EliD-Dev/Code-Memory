@@ -5,6 +5,7 @@ import i18n from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 axios.defaults.withCredentials = true;
 
@@ -23,7 +24,12 @@ i18n
                     connectButton: "Connect with GitHub",
                     connecting: "Connecting...",
                     logout: "Log out",
+                    native: "Native",
+                    score: "Score",
                     recentSearches: "Recent searches",
+                    subtitleMD: "Analysis Report",
+                    quickStartMarkdown: "Quick Start Setup",
+                    viewDetails: "Click to expand details",
                     semanticSummary: "Semantic Summary",
                     realStack: "Real Stack Detector",
                     envVars: "Environment Variables",
@@ -61,7 +67,109 @@ i18n
                     infraTitle: "Infrastructure Tools",
                     manifestTitle: "Configuration Manifest",
                     pivotalFilesTitle: "Pivotal Files Mapping",
-                    radarTitle: "Major Dependencies Radar"
+                    radarTitle: "Major Dependencies Radar",
+                    quickStartTitle: "Quick Start",
+                    quickStartSub: "Select your package manager to copy setup commands:",
+                    techDebtTitle: "Technical Debt Radar",
+                    techDebtSub: "High-risk components and complex files based on churn and size.",
+                    entryPointsTitle: "Applicative Entry Points",
+                    entryPointsSub: "Key architectural files to open first to understand the codebase.",
+                    licenceTitle: "Legal Compliance Audit",
+                    licenceSub: "Commercial use audit and license dependencies map.",
+                    pkgManager: "Package Manager",
+                    globalLicence: "Main License",
+                    statusReady: "Ready for commercial use",
+                    statusWarning: "Warning: Copyleft license detected",
+                    copyCode: "Copy commands",
+                    copiedCode: "Copied!",
+
+                    // Markdown headers & categories translations (EN)
+                    fileLabel: "File",
+                    size: "Size",
+                    sizeKo: "Size (KB)",
+                    churn: "Churn",
+                    riskScore: "Risk Score",
+                    category: "Category",
+                    dependency: "Dependency",
+                    licence: "License",
+                    commercialStatus: "Commercial Status",
+                    securityAuth: "Security & Auth",
+                    dataOrm: "Data & ORM",
+                    stateManagement: "State Management",
+                    criticalTools: "Critical Tools",
+                    coreDeps: "Core",
+
+                    // Backend keys localization (EN)
+                    MAIN_LANGUAGE: "Main language",
+                    BACKEND_FRAMEWORK: "Backend framework",
+                    API_FRAMEWORK: "API framework",
+                    MOBILE_WEB_FRAMEWORK: "Mobile/Web framework",
+                    FRONTEND_FRAMEWORK: "Frontend framework",
+                    FRONTEND_META_FRAMEWORK: "Frontend meta-framework",
+                    REPOSITORY_STRUCTURE: "Repository structure",
+                    DOCKER_CONTAINERIZATION: "Containerization configuration present (docker-compose)",
+                    RELATIONAL_DB_DOCKER: "Relational database (Docker)",
+                    CACHE_MESSAGE_BROKER_DOCKER: "Cache / Message broker (Docker)",
+                    DISTRIBUTED_MESSAGE_BROKER_DOCKER: "Distributed message broker (Docker)",
+                    DB_DETECTED_IN_CONFIG: "Database detected in configuration files",
+                    REDIS_CLIENT_CONFIG_DETECTED: "Redis client / configuration detected",
+                    NO_INFRA_DETECTED: "No explicit Docker or middleware infrastructure detected.",
+                    PROJECT_ENV_VAR: "Project environment variable",
+                    APP_CONFIG_ENV_VAR: "Variable extracted from application config files",
+                    NO_ENV_VAR_DETECTED: "No environment variables detected",
+                    REQ_JAVA: "Requires Java {{version}}+",
+                    REQ_NODE: "Requires Node.js v20+",
+                    REQ_DOCKER: "Requires Docker & Docker Compose",
+                    REQ_POSTGRES: "Requires an active PostgreSQL instance",
+                    REQ_MYSQL: "Requires an active MySQL instance",
+                    REQ_REDIS: "Requires an active Redis server",
+                    REQ_KAFKA: "Requires an Apache Kafka cluster",
+                    NO_PREREQS: "No specific system prerequisites detected.",
+                    PROJECT_STRUCT_SEMANTIC_IMPORTANCE: "Project structure and semantic importance.",
+                    STATIC_PIVOT_COMPONENT: "Central pivot component identified by static analysis.",
+                    HIGH_CHURN_COUNT: "Critical file modified {{count}} times recently (high churn).",
+                    STABLE: "Stable Component",
+                    UNDETECTED: "Undetected",
+                    GOD_OBJECT: "God Object / High Criticality",
+                    MODERATE_DEBT: "Moderate Debt / High Churn",
+                    DOM_ENTRYPOINT: "DOM rendering entry point for React/Frontend.",
+                    ROOT_COMPONENT: "Root component of the client application.",
+                    NEXT_PAGE_ROUTE: "Main page of the application (Next.js / routing).",
+                    SPRING_APPLICATION: "Main Spring Boot class starting the application.",
+                    LARAVEL_ROUTES: "Route configuration file (Laravel).",
+                    API_CONTROLLER: "API Controller handling incoming requests.",
+                    GO_ENTRYPOINT: "Entry point of the Go application.",
+                    PYTHON_SCRIPT: "Entry script of the Python application.",
+                    UNSPECIFIED: "Not specified",
+                    UNLICENSED: "Unlicensed",
+                    COMMERCIAL_READY: "Ready for commercial use",
+                    COPYLEFT_WARNING: "Warning: Copyleft license detected",
+                    ENV_WARNING: "Warning: An .env file is committed in this repository. Check that it does not contain any production secret keys.",
+                    GITIGNORE_FILE_WARNING: "Warning: An .gitignore file is committed in this repository. Check that it does not contain any production secret keys.",
+                    ERROR_DEPENDENCIES: "Error reading dependencies for ",
+                    ERROR_ENV_VAR: "Error during the extraction of environment variables (ignored) : ",
+                    ERROR_INFRASTRUCTURE: "Error during the detection of the infrastructure (ignored) : ",
+                    ERROR_STACK: "Error during the detection of the stack (ignored) : ",
+                    ERROR_CRITICAL_FILES: "Error during the detection of critical files (ignored) : ",
+                    ERROR_DECISIONS: "Error during the detection of decisions (ignored) : ",
+                    ERROR_TOP_CONTRIBUTORS: "Error during the detection of top contributors (ignored) : ",
+                    ERROR_QUICK_START: "Error during the detection of the quick start (ignored) : ",
+                    ERROR_TECHNICAL_DEBT: "Error during the detection of technical debt (ignored) : ",
+                    ERROR_ENTRY_POINTS: "Error during the detection of entry points (ignored) : ",
+                    ERROR_LICENCE_AUDIT: "Error during the detection of the license (ignored) : ",
+                    ALLOWED: "Allowed",
+                    WARNING: "Warning",
+                    RESTRICTED: "Restricted",
+                    NONE: "None",
+
+                    // Backend errors localization (EN)
+                    REPO_NOT_FOUND_DESC: "The repository was not found, is private, or you do not have permission to access it.",
+                    TIMEOUT_ERROR_DESC: "The repository is too large or GitHub is taking too long to respond. Please try again.",
+                    UNAUTHORIZED_ERROR_DESC: "Authentication problem with GitHub.",
+                    RATE_LIMIT_ERROR_DESC: "GitHub API rate limit reached or access denied.",
+                    ANALYSIS_FAILED_DESC: "Analysis failed.",
+                    CONNECTION_ERROR_DESC: "Cannot connect to the analysis engine. Please verify that the server is started.",
+                    UNEXPECTED_DATA_FORMAT: "Unexpected analysis data format received."
                 }
             },
             fr: {
@@ -74,7 +182,12 @@ i18n
                     connectButton: "Se connecter avec GitHub",
                     connecting: "Connexion en cours...",
                     logout: "Déconnexion",
+                    native: "Natif",
+                    score: "Score",
                     recentSearches: "Recherches récentes",
+                    subtitleMD: "Rapport d'Analyse",
+                    quickStartMarkdown: "Configuration Démarrage Rapide",
+                    viewDetails: "Cliquez pour dérouler les détails",
                     semanticSummary: "Résumé Sémantique",
                     realStack: "Détecteur de Stack Réelle",
                     envVars: "Variables d'Environnement",
@@ -112,7 +225,109 @@ i18n
                     infraTitle: "Outils d'Infrastructure",
                     manifestTitle: "Manifeste de Configuration",
                     pivotalFilesTitle: "Cartographie des Fichiers Piliers",
-                    radarTitle: "Radar de Dépendances Majeures"
+                    radarTitle: "Radar de Dépendances Majeures",
+                    quickStartTitle: "Démarrage Rapide",
+                    quickStartSub: "Sélectionnez votre gestionnaire de paquets pour copier les commandes :",
+                    techDebtTitle: "Radar de Dette Technique",
+                    techDebtSub: "Zones de haute criticité basées sur la taille et le churn.",
+                    entryPointsTitle: "Points d'Entrée Applicatifs",
+                    entryPointsSub: "Fichiers clés à ouvrir en premier pour comprendre l'architecture.",
+                    licenceTitle: "Audit de Conformité Légale",
+                    licenceSub: "Conformité d'usage commercial et répartition des licences.",
+                    pkgManager: "Gestionnaire de paquets",
+                    globalLicence: "Licence Principale",
+                    statusReady: "Prêt pour usage commercial",
+                    statusWarning: "Attention : Licence Copyleft détectée",
+                    copyCode: "Copier les commandes",
+                    copiedCode: "Copié !",
+
+                    // Markdown headers & categories translations (FR)
+                    fileLabel: "Fichier",
+                    size: "Taille",
+                    sizeKo: "Taille (Ko)",
+                    churn: "Churn",
+                    riskScore: "Score de Risque",
+                    category: "Catégorie",
+                    dependency: "Dépendance",
+                    licence: "Licence",
+                    commercialStatus: "Statut Commercial",
+                    securityAuth: "Sécurité & Auth",
+                    dataOrm: "Données & ORM",
+                    stateManagement: "Gestion d'État",
+                    criticalTools: "Outils Critiques",
+                    coreDeps: "Core",
+
+                    // Backend keys localization (FR)
+                    MAIN_LANGUAGE: "Langage principal",
+                    BACKEND_FRAMEWORK: "Framework Backend",
+                    API_FRAMEWORK: "Framework API",
+                    MOBILE_WEB_FRAMEWORK: "Framework Mobile/Web",
+                    FRONTEND_FRAMEWORK: "Framework Frontend",
+                    FRONTEND_META_FRAMEWORK: "Meta-Framework Frontend",
+                    REPOSITORY_STRUCTURE: "Structure du dépôt",
+                    DOCKER_CONTAINERIZATION: "Configuration de conteneurisation présente (docker-compose)",
+                    RELATIONAL_DB_DOCKER: "Base de données relationnelle (Docker)",
+                    CACHE_MESSAGE_BROKER_DOCKER: "Cache / File de messages (Docker)",
+                    DISTRIBUTED_MESSAGE_BROKER_DOCKER: "Courtier de messages distribué (Docker)",
+                    DB_DETECTED_IN_CONFIG: "Base de données détectée dans les configurations",
+                    REDIS_CLIENT_CONFIG_DETECTED: "Client/Config Redis détecté",
+                    NO_INFRA_DETECTED: "Pas d'infrastructure Docker ou middleware explicite détectée.",
+                    PROJECT_ENV_VAR: "Variable d'environnement du projet",
+                    APP_CONFIG_ENV_VAR: "Variable extraite des configurations applicatives",
+                    NO_ENV_VAR_DETECTED: "Aucune variable d'environnement détectée",
+                    REQ_JAVA: "Nécessite Java {{version}}+",
+                    REQ_NODE: "Nécessite Node.js v20+",
+                    REQ_DOCKER: "Nécessite Docker & Docker Compose",
+                    REQ_POSTGRES: "Nécessite une instance PostgreSQL active",
+                    REQ_MYSQL: "Nécessite une instance MySQL active",
+                    REQ_REDIS: "Nécessite un serveur Redis actif",
+                    REQ_KAFKA: "Nécessite un cluster Apache Kafka",
+                    NO_PREREQS: "Aucun prérequis système particulier détecté.",
+                    PROJECT_STRUCT_SEMANTIC_IMPORTANCE: "Structure du projet et importance sémantique.",
+                    STATIC_PIVOT_COMPONENT: "Composant pivot central identifié par analyse statique.",
+                    HIGH_CHURN_COUNT: "Fichier critique modifié {{count}} fois récemment (churn élevé).",
+                    STABLE: "Composant Stable",
+                    UNDETECTED: "Non détecté",
+                    GOD_OBJECT: "God Object / Haute Criticité",
+                    MODERATE_DEBT: "Dette Modérée / Churn Élevé",
+                    DOM_ENTRYPOINT: "Point d'entrée du rendu DOM React/Frontend.",
+                    ROOT_COMPONENT: "Composant racine de l'application cliente.",
+                    NEXT_PAGE_ROUTE: "Page principale de l'application (Next.js / routing).",
+                    SPRING_APPLICATION: "Classe principale Spring Boot démarrant l'application.",
+                    LARAVEL_ROUTES: "Fichier de configuration des routes (Laravel).",
+                    API_CONTROLLER: "Contrôleur API gérant les requêtes entrantes.",
+                    GO_ENTRYPOINT: "Point d'entrée de l'application Go.",
+                    PYTHON_SCRIPT: "Script d'entrée de l'application Python.",
+                    UNSPECIFIED: "Non spécifiée",
+                    UNLICENSED: "Sans licence",
+                    COMMERCIAL_READY: "Prêt pour usage commercial",
+                    COPYLEFT_WARNING: "Attention : Licence Copyleft détectée",
+                    ENV_WARNING: "Avertissement de sécurité : Un fichier .env est commité en dur dans ce dépôt. Vérifiez qu'il ne contient aucune clé secrète de production.",
+                    GITIGNORE_FILE_WARNING: "Avertissement de sécurité : Un fichier .gitignore est commité en dur dans ce dépôt. Vérifiez qu'il ne contient aucune clé secrète de production.",
+                    ERROR_DEPENDENCIES: "Erreur de lecture des dépendances pour ",
+                    ERROR_ENV_VAR: "Erreur lors de l'extraction des variables d'environnement (ignorée) : ",
+                    ERROR_INFRASTRUCTURE: "Erreur lors de la détection de l'infrastructure (ignorée gentiment) : ",
+                    ERROR_STACK: "Erreur lors de la détection de la stack (ignorée gentiment) : ",
+                    ERROR_CRITICAL_FILES: "Erreur lors de la détection des fichiers critiques (ignorée gentiment) : ",
+                    ERROR_DECISIONS: "Erreur lors de la détection des décisions (ignorée gentiment) : ",
+                    ERROR_TOP_CONTRIBUTORS: "Erreur lors de la détection des top contributeurs (ignorée gentiment) : ",
+                    ERROR_QUICK_START: "Erreur lors de la détection du quick start (ignorée gentiment) : ",
+                    ERROR_TECHNICAL_DEBT: "Erreur lors de la détection de la dette technique (ignorée gentiment) : ",
+                    ERROR_ENTRY_POINTS: "Erreur lors de la détection des points d'entrée (ignorée gentiment) : ",
+                    ERROR_LICENCE_AUDIT: "Erreur lors de la détection de la licence (ignorée gentiment) : ",
+                    ALLOWED: "Autorisé",
+                    WARNING: "Attention",
+                    RESTRICTED: "Risqué",
+                    NONE: "Aucune",
+
+                    // Backend errors localization (FR)
+                    REPO_NOT_FOUND_DESC: "Le dépôt est introuvable, privé, ou vous n'avez pas les droits pour y accéder.",
+                    TIMEOUT_ERROR_DESC: "Le dépôt est trop volumineux ou GitHub met trop de temps à répondre. Veuillez réessayer.",
+                    UNAUTHORIZED_ERROR_DESC: "Problème d'authentification avec GitHub.",
+                    RATE_LIMIT_ERROR_DESC: "Limite d'API GitHub atteinte ou accès refusé.",
+                    ANALYSIS_FAILED_DESC: "L'analyse a échoué.",
+                    CONNECTION_ERROR_DESC: "Impossible de se connecter au moteur d'analyse. Veuillez vérifier que le serveur est démarré.",
+                    UNEXPECTED_DATA_FORMAT: "Format de données d'analyse inattendu reçu."
                 }
             },
             es: {
@@ -125,7 +340,12 @@ i18n
                     connectButton: "Conectarse con GitHub",
                     connecting: "Conexión en curso...",
                     logout: "Cerrar sesión",
-                    recentSearches: "Búsquedas récentes",
+                    native: "Nativo",
+                    score: "Puntaje",
+                    recentSearches: "Búsquedas recientes",
+                    subtitleMD: "Informe de Análisis",
+                    quickStartMarkdown: "Configuración de Inicio Rápido",
+                    viewDetails: "Haga clic para expandir los detalles",
                     semanticSummary: "Resumen Semántico",
                     realStack: "Detector de Stack Real",
                     envVars: "Variables de Entorno",
@@ -154,7 +374,7 @@ i18n
                     errorTitle: "Error al analizar",
                     syncing: "Sincronizando con el motor de análisis (intento {{attempt}}/3)...",
                     noAnalysisYet: "Aún no se ha cargado ningún análisis.",
-                    noAnalysisSub: "Ingrese un propietario y un repositorio arriba para inspeccionar la arquitectura.",
+                    noAnalysisSub: "Ingrese un propietario y un repositorio arriba para inspectar la arquitectura.",
                     ownerLabel: "Propietario",
                     repoLabel: "Repositorio",
                     loginRequired: "Inicie sesión para iniciar un análisis.",
@@ -163,7 +383,109 @@ i18n
                     infraTitle: "Herramientas de Infraestructura",
                     manifestTitle: "Manifiesto de Configuración",
                     pivotalFilesTitle: "Mapeo de Archivos Pilares",
-                    radarTitle: "Radar de Dependencias Mayores"
+                    radarTitle: "Radar de Dependencias Mayores",
+                    quickStartTitle: "Inicio Rápido",
+                    quickStartSub: "Seleccione su gestor de paquetes para copiar comandos:",
+                    techDebtTitle: "Radar de Deuda Técnica",
+                    techDebtSub: "Componentes de alto riesgo y archivos complejos según churn y tamaño.",
+                    entryPointsTitle: "Puntos de Entrada Aplicativos",
+                    entryPointsSub: "Archivos clave para abrir primero para entender la arquitectura.",
+                    licenceTitle: "Auditoría de Conformidad Legal",
+                    licenceSub: "Auditoría de uso comercial y mapa de licencias de dependencias.",
+                    pkgManager: "Gestor de paquetes",
+                    globalLicence: "Licencia Principal",
+                    statusReady: "Listo para uso comercial",
+                    statusWarning: "Atención: Licencia Copyleft detectada",
+                    copyCode: "Copiar comandos",
+                    copiedCode: "¡Copiado!",
+
+                    // Markdown headers & categories translations (ES)
+                    fileLabel: "Archivo",
+                    size: "Tamaño",
+                    sizeKo: "Tamaño (KB)",
+                    churn: "Churn",
+                    riskScore: "Puntuación de Riesgo",
+                    category: "Categoría",
+                    dependency: "Dependencia",
+                    licence: "Licencia",
+                    commercialStatus: "Estado Comercial",
+                    securityAuth: "Seguridad y Autenticación",
+                    dataOrm: "Datos y ORM",
+                    stateManagement: "Gestión de Estado",
+                    criticalTools: "Herramientas Críticas",
+                    coreDeps: "Core",
+
+                    // Backend keys localization (ES)
+                    MAIN_LANGUAGE: "Idioma principal",
+                    BACKEND_FRAMEWORK: "Framework Backend",
+                    API_FRAMEWORK: "Framework de API",
+                    MOBILE_WEB_FRAMEWORK: "Framework Mobile/Web",
+                    FRONTEND_FRAMEWORK: "Framework Frontend",
+                    FRONTEND_META_FRAMEWORK: "Meta-Framework Frontend",
+                    REPOSITORY_STRUCTURE: "Estructura del repositorio",
+                    DOCKER_CONTAINERIZATION: "Configuración de contenedorización presente (docker-compose)",
+                    RELATIONAL_DB_DOCKER: "Base de datos relacional (Docker)",
+                    CACHE_MESSAGE_BROKER_DOCKER: "Caché / Gestor de mensajes (Docker)",
+                    DISTRIBUTED_MESSAGE_BROKER_DOCKER: "Gestor de mensajes distribuido (Docker)",
+                    DB_DETECTED_IN_CONFIG: "Base de datos detectada en archivos de configuración",
+                    REDIS_CLIENT_CONFIG_DETECTED: "Cliente / Configuración Redis detectado",
+                    NO_INFRA_DETECTED: "No se detectó infraestructura explícita de Docker o middleware.",
+                    PROJECT_ENV_VAR: "Variable de entorno del proyecto",
+                    APP_CONFIG_ENV_VAR: "Variable extraída de configuraciones de la aplicación",
+                    NO_ENV_VAR_DETECTED: "No se detectaron variables de entorno",
+                    REQ_JAVA: "Requiere Java {{version}}+",
+                    REQ_NODE: "Requiere Node.js v20+",
+                    REQ_DOCKER: "Requiere Docker & Docker Compose",
+                    REQ_POSTGRES: "Requiere una instancia activa de PostgreSQL",
+                    REQ_MYSQL: "Requiere una instancia activa de MySQL",
+                    REQ_REDIS: "Requiere un servidor activo de Redis",
+                    REQ_KAFKA: "Requiere un clúster de Apache Kafka",
+                    NO_PREREQS: "No se detectaron prerrequisitos específicos del sistema.",
+                    PROJECT_STRUCT_SEMANTIC_IMPORTANCE: "Estructura del proyecto e importancia semántica.",
+                    STATIC_PIVOT_COMPONENT: "Componente pivote central identificado por análisis estático.",
+                    HIGH_CHURN_COUNT: "Archivo crítico modificado {{count}} veces recientemente (alto churn).",
+                    STABLE: "Componente Estable",
+                    UNDETECTED: "No detectado",
+                    GOD_OBJECT: "God Object / Alta Criticidad",
+                    MODERATE_DEBT: "Deuda Moderada / Alto Churn",
+                    DOM_ENTRYPOINT: "Punto de entrada de renderizado DOM para React/Frontend.",
+                    ROOT_COMPONENT: "Componente raíz de la aplicación cliente.",
+                    NEXT_PAGE_ROUTE: "Página principal de la aplicación (Next.js / enrutamiento).",
+                    SPRING_APPLICATION: "Clase principal de Spring Boot que inicia la aplicación.",
+                    LARAVEL_ROUTES: "Archivo de configuración de rutas (Laravel).",
+                    API_CONTROLLER: "Controlador de API que maneja las solicitudes entrantes.",
+                    GO_ENTRYPOINT: "Punto de entrada de la aplicación Go.",
+                    PYTHON_SCRIPT: "Script de entrada de la aplicación Python.",
+                    UNSPECIFIED: "No especificada",
+                    UNLICENSED: "Sin licencia",
+                    COMMERCIAL_READY: "Listo para uso comercial",
+                    COPYLEFT_WARNING: "Atención: Licencia Copyleft detectada",
+                    ENV_WARNING: "Advertencia de seguridad: En este repositorio hay un archivo .env integrado de forma permanente. Comprueba que no contenga ninguna clave secreta de producción.",
+                    GITIGNORE_FILE_WARNING: "Advertencia de seguridad: En este repositorio hay un archivo .gitignore integrado de forma permanente. Comprueba que no contenga ninguna clave secreta de producción.",
+                    ERROR_DEPENDENCIES: "Error de lectura de dependencias para ",
+                    ERROR_ENV_VAR: "Error durante la extracción de variables de entorno (ignorado) : ",
+                    ERROR_INFRASTRUCTURE: "Error durante la detección de la infraestructura (ignorado) : ",
+                    ERROR_STACK: "Error durante la detección de la stack (ignorado) : ",
+                    ERROR_CRITICAL_FILES: "Error durante la detección de los archivos críticos (ignorado) : ",
+                    ERROR_DECISIONS: "Error durante la detección de las decisiones (ignorado) : ",
+                    ERROR_TOP_CONTRIBUTORS: "Error durante la detección de los top colaboradores (ignorado) : ",
+                    ERROR_QUICK_START: "Error durante la detección del quick start (ignorado) : ",
+                    ERROR_TECHNICAL_DEBT: "Error durante la detección de la deuda técnica (ignorado) : ",
+                    ERROR_ENTRY_POINTS: "Error durante la detección de los puntos de entrada (ignorado) : ",
+                    ERROR_LICENCE_AUDIT: "Error durante la detección de la licencia (ignorado) : ",
+                    ALLOWED: "Permitido",
+                    WARNING: "Atención",
+                    RESTRICTED: "Risqué",
+                    NONE: "Ninguna",
+
+                    // Backend errors localization (ES)
+                    REPO_NOT_FOUND_DESC: "El repositorio no fue encontrado, es privado, o no tiene permisos para acceder a él.",
+                    TIMEOUT_ERROR_DESC: "El repositorio es demasiado grande o GitHub está tardando demasiado en responder. Por favor intente de nuevo.",
+                    UNAUTHORIZED_ERROR_DESC: "Problema de autenticación con GitHub.",
+                    RATE_LIMIT_ERROR_DESC: "Límite de API de GitHub alcanzado o acceso denegado.",
+                    ANALYSIS_FAILED_DESC: "El análisis ha fallado.",
+                    CONNECTION_ERROR_DESC: "No se pudo conectar al motor de análisis. Verifique que el servidor esté iniciado.",
+                    UNEXPECTED_DATA_FORMAT: "Formato de datos de análisis inesperado recibido."
                 }
             }
         },
@@ -219,6 +541,45 @@ interface TopContributor {
     commitCount: number;
 }
 
+interface QuickStartInfo {
+    wingetCommands: string;
+    brewCommands: string;
+    nativeCommands: string;
+    hasCommittedEnv: boolean;
+}
+
+interface TechnicalDebtFile {
+    name: string;
+    path: string;
+    sizeBytes: number;
+    churn: number;
+    riskScore: number;
+    riskCategory: string;
+}
+
+interface TechnicalDebt {
+    globalRiskScore: number;
+    riskyFiles: TechnicalDebtFile[];
+}
+
+interface EntryPoint {
+    name: string;
+    path: string;
+    description: string;
+}
+
+interface DependencyLicence {
+    dependencyName: string;
+    licenceName: string;
+    status: string;
+}
+
+interface LicenceAudit {
+    globalStatus: string;
+    mainLicence: string;
+    details: DependencyLicence[];
+}
+
 interface AnalysisResponse {
     identity: {
         summary: string;
@@ -233,6 +594,10 @@ interface AnalysisResponse {
     dependencies: Dependencies;
     decisions: Decision[];
     topContributors?: TopContributor[];
+    quickStart?: QuickStartInfo;
+    technicalDebt?: TechnicalDebt;
+    entryPoints?: EntryPoint[];
+    licenceAudit?: LicenceAudit;
 }
 
 interface HistoryItem {
@@ -265,6 +630,71 @@ const ENFlag = () => (
         <path d="M25 0 V30 M0 15 H50" stroke="#C8102E" strokeWidth="6" />
     </svg>
 );
+
+// Premium code blocks in Markdown with 1-click copy support
+const CodeBlock = ({ code, language }: { code: string; language: string }) => {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(code);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div className="not-prose relative my-5 group rounded-lg overflow-hidden border border-slate-200 bg-slate-50/50">
+            <div className="flex justify-between items-center px-4 py-2 bg-slate-100/80 border-b border-slate-200 text-slate-500 text-xs font-mono select-none">
+                <span>{language || 'code'}</span>
+                <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer font-sans text-[11px] font-medium"
+                    title="Copy code"
+                >
+                    {copied ? (
+                        <>
+                            <svg className="w-3.5 h-3.5 text-emerald-600 animate-fade-in" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span className="text-[10px] text-emerald-600 font-semibold">Copied!</span>
+                        </>
+                    ) : (
+                        <>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                <path d="M9 9V6.2002C9 5.08009 9 4.51962 9.21799 4.0918C9.40973 3.71547 9.71547 3.40973 10.0918 3.21799C10.5196 3 11.0801 3 12.2002 3H17.8002C18.9203 3 19.4801 3 19.9079 3.21799C20.2842 3.40973 20.5905 3.71547 20.7822 4.0918C21.0002 4.51962 21.0002 5.07967 21.0002 6.19978V11.7998C21.0002 12.9199 21.0002 13.48 20.7822 13.9078C20.5905 14.2841 20.2839 14.5905 19.9076 14.7822C19.4802 15 18.921 15 17.8031 15H15M9 9H6.2002C5.08009 9 4.51962 9 4.0918 9.21799C3.71547 9.40973 3.40973 9.71547 3.21799 10.0918C3 10.5196 3 11.0801 3 12.2002V17.8002C3 18.9203 3 19.4801 3.21799 19.9079C3.40973 20.2842 3.71547 20.5905 4.0918 20.7822C4.5192 21 5.07899 21 6.19691 21H11.8036C12.9215 21 13.4805 21 13.9079 20.7822C14.2842 20.5905 14.5905 20.2839 14.7822 19.9076C15 19.4802 15 18.921 15 17.8031V15M9 9H11.8002C12.9203 9 13.4801 9 13.9079 9.21799C14.2842 9.40973 14.5905 9.71547 14.7822 10.0918C15 10.5192 15 11.079 15 12.1969L15 15" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            <span>Copy</span>
+                        </>
+                    )}
+                </button>
+            </div>
+            <pre className="p-4 overflow-x-auto text-xs text-slate-800 font-mono bg-slate-50/30 whitespace-pre-wrap break-all leading-relaxed select-text">
+                <code>{code}</code>
+            </pre>
+        </div>
+    );
+};
+
+const renderComponents = {
+    pre({ children }: any) {
+        return <>{children}</>;
+    },
+    code({ node, inline, className, children, ...props }: any) {
+        const codeText = String(children).replace(/\n$/, '');
+        const match = /language-(\w+)/.exec(className || '');
+        const isMultiline = codeText.includes('\n') || !!match;
+
+        if (isMultiline) {
+            return <CodeBlock code={codeText} language={match ? match[1] : 'code'} />;
+        }
+
+        return (
+            <code className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-mono text-xs border border-slate-200 before:content-none after:content-none" {...props}>
+                {children}
+            </code>
+        );
+    }
+};
 
 // Custom Dropdown Language Selector with Inline SVG flags
 interface LanguageSelectorProps {
@@ -397,9 +827,8 @@ const MarkdownPreviewModal = ({ isOpen, onClose, markdownText, repoName, t }: Ma
                     <button
                         type="button"
                         onClick={() => setViewMode('preview')}
-                        className={`text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer ${
-                            viewMode === 'preview' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
-                        }`}
+                        className={`text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer ${viewMode === 'preview' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
+                            }`}
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -410,9 +839,8 @@ const MarkdownPreviewModal = ({ isOpen, onClose, markdownText, repoName, t }: Ma
                     <button
                         type="button"
                         onClick={() => setViewMode('code')}
-                        className={`text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer ${
-                            viewMode === 'code' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
-                        }`}
+                        className={`text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer ${viewMode === 'code' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
+                            }`}
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                             <polyline points="16 18 22 12 16 6" />
@@ -430,7 +858,7 @@ const MarkdownPreviewModal = ({ isOpen, onClose, markdownText, repoName, t }: Ma
                         </div>
                     ) : (
                         <div className="prose prose-slate prose-sm max-w-none text-left">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={renderComponents}>
                                 {markdownText}
                             </ReactMarkdown>
                         </div>
@@ -469,65 +897,154 @@ const MarkdownPreviewModal = ({ isOpen, onClose, markdownText, repoName, t }: Ma
 
 // Export to Markdown text generator
 function generateMarkdownText(analysis: AnalysisResponse, repoName: string, t: any): string {
-    let md = `# ${t('title')} - ${repoName}\n\n`;
+    const translatePrereq = (req: string) => {
+        if (req.startsWith("REQ_JAVA_")) {
+            const ver = req.replace("REQ_JAVA_", "");
+            return t("REQ_JAVA", { version: ver });
+        }
+        return t(req);
+    };
 
-    // Summary
+    const translateReason = (reason: string) => {
+        if (reason.startsWith("HIGH_CHURN_COUNT:")) {
+            const count = reason.split(":")[1];
+            return t("HIGH_CHURN_COUNT", { count });
+        }
+        return t(reason);
+    };
+
+    // 1. En-tête
+    let md = `<div align="center">\n  <h1>${t('title')}</h1>\n  <p><sup>${t('subtitleMD')} - <b>${repoName}</b></sup></p>\n</div>\n\n---\n\n`;
+
+    // 2. Semantic Summary
     md += `## ${t('semanticSummary')}\n\n`;
     md += `${analysis.identity.summary || 'N/A'}\n\n`;
 
-    // Real Stack
+    // 3. Quick Start
+    md += `## ${t('quickStartTitle')}\n\n`;
+    md += `> **${t('quickStartMarkdown')}**\n\n`;
+    if (analysis.quickStart) {
+        if (analysis.quickStart.hasCommittedEnv) {
+            md += `> [!WARNING]\n> ${t('ENV_WARNING')}\n\n`;
+        }
+        md += `\`\`\`bash\n`;
+        md += `${analysis.quickStart.nativeCommands || 'N/A'}\n`;
+        md += `\`\`\`\n\n`;
+    } else {
+        md += `N/A\n\n`;
+    }
+
+    // 4. Real Stack Detector
     md += `## ${t('realStack')}\n\n`;
     if (analysis.identity.stack && analysis.identity.stack.length > 0) {
-        md += `| ${t('envVarName')} | Type | Version |\n`;
-        md += `| --- | --- | --- |\n`;
         analysis.identity.stack.forEach(item => {
-            md += `| ${item.name} | ${item.type} | ${item.version || 'N/A'} |\n`;
+            const label = item.name.replace(/-/g, '--');
+            const val = (item.version || 'N/A').replace(/-/g, '--');
+            const badgeUrl = `https://img.shields.io/badge/${encodeURIComponent(label)}-${encodeURIComponent(val)}-3b82f6?style=flat-square&labelColor=1e293b`;
+            md += `<img src="${badgeUrl}" alt="${item.name}" /> **${t(item.type)}**<br/>\n`;
         });
     } else {
         md += `N/A\n`;
     }
     md += `\n`;
 
-    // Env Vars
+    md += `### ${t('prerequisites')}\n\n`;
+    if (analysis.configManifest.prerequisites && analysis.configManifest.prerequisites.length > 0) {
+        analysis.configManifest.prerequisites.forEach(req => {
+            md += `- ${translatePrereq(req)}\n`;
+        });
+    } else {
+        md += `N/A\n`;
+    }
+    md += `\n`;
+
+    // 5. Environment Variables
     md += `## ${t('envVars')}\n\n`;
+    md += `<details>\n<summary>${t('viewDetails')}</summary>\n\n`;
     if (analysis.configManifest.variables && analysis.configManifest.variables.length > 0) {
         md += `| ${t('envVarName')} | ${t('envVarDesc')} | ${t('envVarSource')} |\n`;
         md += `| --- | --- | --- |\n`;
         analysis.configManifest.variables.forEach(v => {
-            md += `| \`${v.name}\` | ${v.description || 'N/A'} | \`${v.sourceFile}\` |\n`;
+            const nameStr = v.name === "NONE" ? t("NONE") : `<kbd>${v.name}</kbd>`;
+            md += `| ${nameStr} | ${t(v.description)} | <kbd>${v.sourceFile}</kbd> |\n`;
         });
     } else {
         md += `N/A\n`;
     }
-    md += `\n`;
+    md += `\n</details>\n\n`;
 
-    // Pivotal Files
-    md += `## ${t('pivotalFiles')}\n\n`;
+    // 6. Pivotal Files Mapping
+    md += `## ${t('pivotalFilesTitle')}\n\n`;
     if (analysis.criticalFiles && analysis.criticalFiles.length > 0) {
-        md += `| File | ${t('importanceScore')} | ${t('reason')} |\n`;
+        md += `| ${t('fileLabel')} | ${t('importanceScore')} | ${t('reason')} |\n`;
         md += `| --- | --- | --- |\n`;
         analysis.criticalFiles.forEach(f => {
-            md += `| \`${f.name}\` | ${f.score} | ${f.reason} |\n`;
+            let folderPart = "";
+            let filePart = f.name;
+            if (f.path.includes("/")) {
+                folderPart = f.path.substring(0, f.path.lastIndexOf("/"));
+            }
+            const pathWithKbd = folderPart ? `<kbd>${folderPart}</kbd>/${filePart}` : filePart;
+            md += `| ${pathWithKbd} | **${f.score}** | ${translateReason(f.reason)} |\n`;
         });
     } else {
         md += `N/A\n`;
     }
     md += `\n`;
 
-    // Dependencies
+    // 7. Technical Debt Radar
+    md += `## ${t('techDebtTitle')}\n\n`;
+    md += `> **${t('techDebtSub')}**\n\n`;
+    if (analysis.technicalDebt && analysis.technicalDebt.riskyFiles && analysis.technicalDebt.riskyFiles.length > 0) {
+        md += `| ${t('fileLabel')} | ${t('sizeKo')} | ${t('churn')} | ${t('riskScore')} | ${t('category')} |\n`;
+        md += `| --- | --- | --- | --- | --- |\n`;
+        analysis.technicalDebt.riskyFiles.forEach(f => {
+            let folderPart = "";
+            let filePart = f.name;
+            if (f.path.includes("/")) {
+                folderPart = f.path.substring(0, f.path.lastIndexOf("/"));
+            }
+            const pathWithKbd = folderPart ? `<kbd>${folderPart}</kbd>/${filePart}` : filePart;
+            md += `| ${pathWithKbd} | ${(f.sizeBytes / 1024).toFixed(1)} | ${f.churn} | **${f.riskScore}** | ${t(f.riskCategory)} |\n`;
+        });
+    } else {
+        md += `N/A\n`;
+    }
+    md += `\n`;
+
+    // 8. Applicative Entry Points
+    md += `## ${t('entryPointsTitle')}\n\n`;
+    md += `> **${t('entryPointsSub')}**\n\n`;
+    if (analysis.entryPoints && analysis.entryPoints.length > 0) {
+        analysis.entryPoints.forEach(ep => {
+            let folderPart = "";
+            let filePart = ep.name;
+            if (ep.path.includes("/")) {
+                folderPart = ep.path.substring(0, ep.path.lastIndexOf("/"));
+            }
+            const pathWithKbd = folderPart ? `<kbd>${folderPart}</kbd>/${filePart}` : filePart;
+            md += `- **${ep.name}** (${pathWithKbd}) : ${t(ep.description)}\n`;
+        });
+    } else {
+        md += `N/A\n`;
+    }
+    md += `\n`;
+
+    // 9. Major Dependencies Radar
     md += `## ${t('dependenciesMap')}\n\n`;
     const deps = analysis.dependencies;
-    const categories = [
-        { title: 'Core', items: deps.core },
-        { title: 'Security', items: deps.security },
-        { title: 'Persistence', items: deps.persistence },
-        { title: 'State Management', items: deps.state },
-        { title: 'Tools', items: deps.tools }
+    const catList = [
+        { title: t('coreDeps'), items: deps.core },
+        { title: t('securityAuth'), items: deps.security },
+        { title: t('dataOrm'), items: deps.persistence },
+        { title: t('stateManagement'), items: deps.state },
+        { title: t('criticalTools'), items: deps.tools }
     ];
-    categories.forEach(cat => {
+    catList.forEach(cat => {
         md += `### ${cat.title}\n`;
-        if (cat.items && cat.items.length > 0) {
-            cat.items.forEach(item => {
+        const validItems = cat.items ? cat.items.filter(item => item !== "UNDETECTED") : [];
+        if (validItems.length > 0) {
+            validItems.forEach(item => {
                 md += `- ${item}\n`;
             });
         } else {
@@ -536,31 +1053,37 @@ function generateMarkdownText(analysis: AnalysisResponse, repoName: string, t: a
         md += `\n`;
     });
 
-    // Milestones
+    // 10. Milestones History
     md += `## ${t('timeline')}\n\n`;
+    md += `<details>\n<summary>${t('viewDetails')}</summary>\n\n`;
     if (analysis.decisions && analysis.decisions.length > 0) {
         analysis.decisions.forEach(d => {
-            md += `- **[${d.date}]** ${d.title}\n`;
+            md += `- **[${d.date}]** ${d.title} : ${d.description}\n`;
         });
     } else {
         md += `${t('noHistory')}\n`;
     }
-    md += `\n`;
+    md += `\n</details>\n\n`;
 
-    // Guardians
-    md += `## ${t('guardians')}\n\n`;
-    if (analysis.topContributors && analysis.topContributors.length > 0) {
-        analysis.topContributors.forEach(c => {
-            md += `- **${c.name}** (${c.commitCount} ${t('commitsCount')})\n`;
-        });
+    // 11. Legal Compliance Audit
+    md += `## ${t('licenceTitle')}\n\n`;
+    if (analysis.licenceAudit) {
+        md += `**Statut Global :** ${t(analysis.licenceAudit.globalStatus)}\n`;
+        md += `**Licence Principale :** ${t(analysis.licenceAudit.mainLicence)}\n\n`;
+        if (analysis.licenceAudit.details && analysis.licenceAudit.details.length > 0) {
+            md += `| ${t('dependency')} | ${t('licence')} | ${t('commercialStatus')} |\n`;
+            md += `| --- | --- | --- |\n`;
+            analysis.licenceAudit.details.forEach(det => {
+                md += `| \`${det.dependencyName}\` | ${det.licenceName} | ${t(det.status)} |\n`;
+            });
+        }
     } else {
         md += `N/A\n`;
     }
+    md += `\n`;
 
     return md;
 }
-
-// Inline minimalist SVG Icons (stroke-width: 1.5, fill: none)
 const SearchIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
     <svg className={"w-5 h-5 " + className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="8" />
@@ -649,6 +1172,22 @@ function AppContent() {
     const { owner: routeOwner, repo: routeRepo } = useParams();
     const navigate = useNavigate();
 
+    const translatePrerequisite = (req: string) => {
+        if (req.startsWith("REQ_JAVA_")) {
+            const ver = req.replace("REQ_JAVA_", "");
+            return t("REQ_JAVA", { version: ver });
+        }
+        return t(req);
+    };
+
+    const translateCriticalFileReason = (reason: string) => {
+        if (reason.startsWith("HIGH_CHURN_COUNT:")) {
+            const count = reason.split(":")[1];
+            return t("HIGH_CHURN_COUNT", { count });
+        }
+        return t(reason);
+    };
+
     const [owner, setOwner] = useState('EliD-Dev');
     const [repo, setRepo] = useState('EliD-Dev');
     const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
@@ -660,6 +1199,9 @@ function AppContent() {
     const [avatarUrl, setAvatarUrl] = useState('');
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [isMarkdownModalOpen, setIsMarkdownModalOpen] = useState(false);
+    const [packageManager, setPackageManager] = useState<'winget' | 'brew' | 'native'>('native');
+    const [copiedCode, setCopiedCode] = useState(false);
+    const [terminalType, setTerminalType] = useState<'bash' | 'powershell'>('bash');
 
     useEffect(() => {
         const checkAuthStatus = async () => {
@@ -751,7 +1293,7 @@ function AppContent() {
                     addToHistory(cleanOwner, cleanRepo);
                     break;
                 } else {
-                    throw new Error("Format de données d'analyse inattendu reçu.");
+                    throw new Error("UNEXPECTED_DATA_FORMAT");
                 }
             } catch (err: any) {
                 const isNetworkError = !err.response;
@@ -771,10 +1313,10 @@ function AppContent() {
                 }
 
                 if (err.response) {
-                    const errMsg = err.response.data?.message || err.response.data?.error || "An error occurred during analysis.";
+                    const errMsg = err.response.data?.message || err.response.data?.error || "GENERIC_ERROR";
                     setError(errMsg);
                 } else {
-                    setError("Impossible de se connecter au moteur d'analyse. Veuillez vérifier que le serveur est démarré.");
+                    setError("CONNECTION_ERROR_DESC");
                 }
                 setAnalysis(null);
                 break;
@@ -950,7 +1492,7 @@ function AppContent() {
                         <ErrorIcon className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                         <div>
                             <h4 className="font-semibold text-red-800">{t('errorTitle')}</h4>
-                            <p className="text-sm mt-0.5">{error}</p>
+                            <p className="text-sm mt-0.5">{t(error)}</p>
                         </div>
                     </div>
                 )}
@@ -1024,7 +1566,7 @@ function AppContent() {
                                                 key={idx}
                                                 className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100"
                                             >
-                                                {item.name} v{item.version} <span className="text-blue-400 ml-1.5 font-normal">({item.type})</span>
+                                                {item.name} v{item.version} <span className="text-blue-400 ml-1.5 font-normal">({t(item.type)})</span>
                                             </span>
                                         ))}
                                     </div>
@@ -1039,9 +1581,9 @@ function AppContent() {
                                             <span
                                                 key={idx}
                                                 className="inline-flex items-center px-3 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200"
-                                                title={item.description}
+                                                title={t(item.description)}
                                             >
-                                                {item.name} <span className="text-slate-400 ml-1.5 font-normal">({item.description})</span>
+                                                {item.name} <span className="text-slate-400 ml-1.5 font-normal">({t(item.description)})</span>
                                             </span>
                                         ))}
                                     </div>
@@ -1064,7 +1606,7 @@ function AppContent() {
                                             {analysis.configManifest.prerequisites.map((req, idx) => (
                                                 <li key={idx} className="flex items-start gap-2 text-sm text-slate-600 font-medium">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></span>
-                                                    <span>{req}</span>
+                                                    <span>{translatePrerequisite(req)}</span>
                                                 </li>
                                             ))}
                                         </ul>
@@ -1086,9 +1628,9 @@ function AppContent() {
                                                 <tbody className="divide-y divide-slate-100 text-sm">
                                                     {analysis.configManifest.variables.map((v, idx) => (
                                                         <tr key={idx} className="hover:bg-slate-50/50">
-                                                            <td className="px-3 py-2 font-mono text-slate-800 font-medium">{v.name}</td>
+                                                            <td className="px-3 py-2 font-mono text-slate-800 font-medium">{v.name === "NONE" ? t("NONE") : v.name}</td>
                                                             <td className="px-3 py-2 text-slate-400 font-mono text-xs">{v.sourceFile}</td>
-                                                            <td className="px-3 py-2 text-slate-500">{v.description}</td>
+                                                            <td className="px-3 py-2 text-slate-500">{t(v.description)}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -1097,6 +1639,98 @@ function AppContent() {
                                     </div>
                                 </div>
                             </section>
+
+                            {/* SECTION V3-1: Démarrage Rapide */}
+                            {analysis.quickStart && (
+                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
+                                        <div className="flex items-center gap-2.5">
+                                            <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                                <polygon points="5 3 19 12 5 21 5 3" />
+                                            </svg>
+                                            <h2 className="text-xl font-bold text-slate-900">{t('quickStartTitle')}</h2>
+                                        </div>
+                                        <div className="flex items-center gap-2 font-sans">
+                                            <label className="text-xs font-semibold text-slate-400 uppercase">{t('pkgManager')}:</label>
+                                            <select
+                                                value={packageManager}
+                                                onChange={(e) => setPackageManager(e.target.value as any)}
+                                                className="bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer font-sans"
+                                            >
+                                                <option value="native">{t('native')}</option>
+                                                <option value="winget">Windows (Winget)</option>
+                                                <option value="brew">macOS/Linux (Homebrew)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <p className="text-slate-500 text-xs mb-3 font-sans">
+                                        {t('quickStartSub')}
+                                    </p>
+
+                                    {/* Terminal Selector */}
+                                    <div className="flex bg-slate-100 p-1 rounded-md w-fit mb-4 border border-slate-200 font-sans">
+                                        <button
+                                            type="button"
+                                            onClick={() => setTerminalType('bash')}
+                                            className={`text-slate-500 hover:text-slate-700 px-3 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${terminalType === 'bash' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
+                                                }`}
+                                        >
+                                            <span>Bash / Zsh (Mac/Linux)</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setTerminalType('powershell')}
+                                            className={`text-slate-500 hover:text-slate-700 px-3 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${terminalType === 'powershell' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
+                                                }`}
+                                        >
+                                            <span>PowerShell (Windows)</span>
+                                        </button>
+                                    </div>
+
+                                    <div className="relative bg-slate-50 border border-slate-200 rounded-lg p-4 font-mono text-xs text-slate-800 whitespace-pre-wrap select-all">
+                                        {(() => {
+                                            const rawCmds = packageManager === 'winget' ? analysis.quickStart.wingetCommands :
+                                                packageManager === 'brew' ? analysis.quickStart.brewCommands :
+                                                    analysis.quickStart.nativeCommands;
+                                            if (!rawCmds) return "No commands generated";
+                                            if (terminalType === 'powershell') {
+                                                return rawCmds.split(" && ").join("\n");
+                                            }
+                                            return rawCmds;
+                                        })()}
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                const rawCmds = packageManager === 'winget' ? analysis.quickStart?.wingetCommands :
+                                                    packageManager === 'brew' ? analysis.quickStart?.brewCommands :
+                                                        analysis.quickStart?.nativeCommands;
+                                                if (rawCmds) {
+                                                    const cmds = terminalType === 'powershell' ? rawCmds.split(" && ").join("\n") : rawCmds;
+                                                    await navigator.clipboard.writeText(cmds);
+                                                    setCopiedCode(true);
+                                                    setTimeout(() => setCopiedCode(false), 2000);
+                                                }
+                                            }}
+                                            className="absolute top-3 right-3 px-2 py-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded text-[10px] font-semibold transition-colors cursor-pointer font-sans"
+                                        >
+                                            {copiedCode ? t('copied') : t('copy')}
+                                        </button>
+                                    </div>
+
+                                    {analysis.quickStart.hasCommittedEnv && (
+                                        <div className="mt-4 p-4 bg-orange-50 text-orange-900 border border-orange-200 rounded-lg flex items-start gap-3">
+                                            <svg className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                                <line x1="12" y1="9" x2="12" y2="13" />
+                                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                                            </svg>
+                                            <div className="text-xs font-medium font-sans">
+                                                {t('ENV_WARNING')}
+                                            </div>
+                                        </div>
+                                    )}
+                                </section>
+                            )}
 
                             {/* SECTION 3: Fichiers Piliers */}
                             <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
@@ -1122,15 +1756,92 @@ function AppContent() {
                                             </div>
 
                                             <div className="flex items-center gap-4">
-                                                <p className="text-slate-500 text-xs sm:text-right max-w-sm sm:line-clamp-1">{file.reason}</p>
+                                                <p className="text-slate-500 text-xs sm:text-right max-w-sm sm:line-clamp-1">{translateCriticalFileReason(file.reason)}</p>
                                                 <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 text-xs font-bold border border-orange-100">
-                                                    Score: {file.score}
+                                                    {t('score')}: {file.score}
                                                 </span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </section>
+
+                            {/* SECTION V3-2: Radar de Dette Technique */}
+                            {analysis.technicalDebt && (
+                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                    <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
+                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <div>
+                                            <h2 className="text-xl font-bold text-slate-900">{t('techDebtTitle')}</h2>
+                                            <p className="text-slate-400 text-xs font-sans mt-0.5">{t('techDebtSub')}</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {analysis.technicalDebt.riskyFiles.map((file, idx) => {
+                                            const normalizedScore = Math.min(file.riskScore, 100);
+                                            let barColor = "bg-slate-300";
+                                            if (file.riskCategory === "GOD_OBJECT" || normalizedScore > 70) {
+                                                barColor = "bg-red-500";
+                                            } else if (normalizedScore > 40) {
+                                                barColor = "bg-orange-500";
+                                            }
+                                            return (
+                                                <div key={idx} className="p-3.5 rounded-lg border border-slate-100 bg-slate-50/30">
+                                                    <div className="flex justify-between items-start gap-3 mb-2">
+                                                        <div>
+                                                            <span className="font-semibold text-slate-800 text-sm">{file.name}</span>
+                                                            <p className="text-slate-400 text-xs font-mono truncate max-w-xs md:max-w-md">{file.path}</p>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${file.riskCategory === "GOD_OBJECT" ? "bg-red-50 text-red-700 border border-red-100" : "bg-slate-100 text-slate-700 border border-slate-200"
+                                                                }`}>
+                                                                {t(file.riskCategory)}
+                                                            </span>
+                                                            <div className="text-[10px] text-slate-400 mt-1">
+                                                                {t('size')}: {(file.sizeBytes / 1024).toFixed(1)} KB | {t('churn')}: {file.churn}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/50">
+                                                        <div className={`h-full ${barColor} transition-all`} style={{ width: `${normalizedScore}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* SECTION V3-3: Points d'Entrée Applicatifs */}
+                            {analysis.entryPoints && analysis.entryPoints.length > 0 && (
+                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                    <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
+                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z" />
+                                            <path d="M6 21a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3v12a3 3 0 0 0 3 3z" />
+                                        </svg>
+                                        <div>
+                                            <h2 className="text-xl font-bold text-slate-900">{t('entryPointsTitle')}</h2>
+                                            <p className="text-slate-400 text-xs font-sans mt-0.5">{t('entryPointsSub')}</p>
+                                        </div>
+                                    </div>
+                                    <div className="border-l-2 border-slate-100 pl-4 space-y-4">
+                                        {analysis.entryPoints.map((ep, idx) => (
+                                            <div key={idx} className="relative flex items-start gap-3">
+                                                <div className="absolute -left-[22px] w-4 h-0.5 bg-slate-200 mt-2"></div>
+                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0"></div>
+                                                <div className="min-w-0">
+                                                    <span className="font-mono text-sm text-slate-800 font-semibold">{ep.name}</span>
+                                                    <span className="text-slate-400 text-xs font-mono ml-2">({ep.path})</span>
+                                                    <p className="text-slate-500 text-xs mt-0.5">{t(ep.description)}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
 
                             {/* SECTION 4: Les Gardiens du Temple */}
                             {analysis.topContributors && analysis.topContributors.length > 0 && (
@@ -1173,9 +1884,9 @@ function AppContent() {
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                                     <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/40">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Sécurité & Auth</h3>
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('securityAuth')}</h3>
                                         <div className="flex flex-col gap-2">
-                                            {analysis.dependencies.security.length > 0 ? (
+                                            {analysis.dependencies.security.length > 0 && analysis.dependencies.security[0] !== "UNDETECTED" ? (
                                                 analysis.dependencies.security.map((dep, idx) => (
                                                     <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm font-mono truncate">{dep}</span>
                                                 ))
@@ -1186,9 +1897,9 @@ function AppContent() {
                                     </div>
 
                                     <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/40">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Données & ORM</h3>
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('dataOrm')}</h3>
                                         <div className="flex flex-col gap-2">
-                                            {analysis.dependencies.persistence.length > 0 ? (
+                                            {analysis.dependencies.persistence.length > 0 && analysis.dependencies.persistence[0] !== "UNDETECTED" ? (
                                                 analysis.dependencies.persistence.map((dep, idx) => (
                                                     <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm font-mono truncate">{dep}</span>
                                                 ))
@@ -1199,9 +1910,9 @@ function AppContent() {
                                     </div>
 
                                     <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/40">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Gestion d'État</h3>
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('stateManagement')}</h3>
                                         <div className="flex flex-col gap-2">
-                                            {analysis.dependencies.state.length > 0 ? (
+                                            {analysis.dependencies.state.length > 0 && analysis.dependencies.state[0] !== "UNDETECTED" ? (
                                                 analysis.dependencies.state.map((dep, idx) => (
                                                     <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm font-mono truncate">{dep}</span>
                                                 ))
@@ -1212,9 +1923,9 @@ function AppContent() {
                                     </div>
 
                                     <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/40">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Outils Critiques</h3>
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('criticalTools')}</h3>
                                         <div className="flex flex-col gap-2">
-                                            {analysis.dependencies.tools.length > 0 ? (
+                                            {analysis.dependencies.tools.length > 0 && analysis.dependencies.tools[0] !== "UNDETECTED" ? (
                                                 analysis.dependencies.tools.map((dep, idx) => (
                                                     <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm font-mono truncate">{dep}</span>
                                                 ))
@@ -1225,6 +1936,59 @@ function AppContent() {
                                     </div>
                                 </div>
                             </section>
+
+                            {/* SECTION V3-4: Audit de Conformité Légale */}
+                            {analysis.licenceAudit && (
+                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm animate-fade-in">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
+                                        <div className="flex items-center gap-2.5">
+                                            <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                            <div>
+                                                <h2 className="text-xl font-bold text-slate-900">{t('licenceTitle')}</h2>
+                                                <p className="text-slate-400 text-xs font-sans mt-0.5">{t('licenceSub')}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col sm:items-end font-sans">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${analysis.licenceAudit.globalStatus === "COPYLEFT_WARNING"
+                                                ? "bg-amber-50 text-amber-700 border-amber-100"
+                                                : "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                                }`}>
+                                                {t(analysis.licenceAudit.globalStatus)}
+                                            </span>
+                                            <span className="text-[10px] text-slate-400 mt-1 font-mono font-medium">{t('globalLicence')}: {t(analysis.licenceAudit.mainLicence)}</span>
+                                        </div>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-slate-100 text-xs text-left">
+                                            <thead>
+                                                <tr>
+                                                    <th className="px-3 py-2 font-bold text-slate-400 uppercase tracking-wider">{t('dependency')}</th>
+                                                    <th className="px-3 py-2 font-bold text-slate-400 uppercase tracking-wider">{t('licence')}</th>
+                                                    <th className="px-3 py-2 font-bold text-slate-400 uppercase tracking-wider">{t('commercialStatus')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                                {analysis.licenceAudit.details.map((item, idx) => (
+                                                    <tr key={idx} className="hover:bg-slate-50/50">
+                                                        <td className="px-3 py-2 font-mono font-medium text-slate-800">{item.dependencyName}</td>
+                                                        <td className="px-3 py-2 font-mono text-slate-600">{item.licenceName}</td>
+                                                        <td className="px-3 py-2">
+                                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${item.status === "RESTRICTED" ? "bg-red-50 text-red-600 border border-red-100" :
+                                                                item.status === "WARNING" ? "bg-amber-50 text-amber-600 border border-amber-100" :
+                                                                    "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                                                                }`}>
+                                                                {t(item.status)}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            )}
 
                             {/* SECTION 6: Le Fil d'Ariane */}
                             <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">

@@ -73,26 +73,26 @@ public class GithubController {
                                 .status(org.springframework.http.HttpStatus.valueOf(422))
                                 .body((Object) java.util.Map.of(
                                     "error", "REPO_NOT_FOUND",
-                                    "message", "Le dépôt est introuvable, privé, ou vous n'avez pas les droits pour y accéder."
+                                    "message", "REPO_NOT_FOUND_DESC"
                                 )));
                         }
 
-                        String userFriendlyMessage = "L'analyse a échoué : " + message;
+                        String errorKey = "ANALYSIS_FAILED_DESC";
                         if (e instanceof java.util.concurrent.TimeoutException || 
                             e.getCause() instanceof io.netty.handler.timeout.ReadTimeoutException ||
                             message.toLowerCase().contains("timeout")) {
-                            userFriendlyMessage = "L'analyse a échoué : Le dépôt est trop volumineux ou GitHub met trop de temps à répondre. Veuillez réessayer.";
+                            errorKey = "TIMEOUT_ERROR_DESC";
                         } else if (message.contains("401") || message.contains("Unauthorized")) {
-                            userFriendlyMessage = "L'analyse a échoué : Problème d'authentification avec GitHub.";
+                            errorKey = "UNAUTHORIZED_ERROR_DESC";
                         } else if (message.contains("403") || message.contains("rate limit")) {
-                            userFriendlyMessage = "L'analyse a échoué : Limite d'API GitHub atteinte ou accès refusé.";
+                            errorKey = "RATE_LIMIT_ERROR_DESC";
                         }
 
                         return Mono.just(org.springframework.http.ResponseEntity
                             .status(org.springframework.http.HttpStatus.valueOf(422))
                             .body((Object) java.util.Map.of(
                                 "error", "ANALYSIS_FAILED",
-                                "message", userFriendlyMessage
+                                "message", errorKey
                             )));
                     });
         } catch (Exception e) {
@@ -104,7 +104,7 @@ public class GithubController {
                     .status(org.springframework.http.HttpStatus.valueOf(422))
                     .body((Object) java.util.Map.of(
                         "error", "REPO_NOT_FOUND",
-                        "message", "Le dépôt est introuvable, privé, ou vous n'avez pas les droits pour y accéder."
+                        "message", "REPO_NOT_FOUND_DESC"
                     )));
             }
             
@@ -112,7 +112,7 @@ public class GithubController {
                 .status(org.springframework.http.HttpStatus.valueOf(422))
                 .body((Object) java.util.Map.of(
                     "error", "ANALYSIS_FAILED",
-                    "message", "L'analyse a échoué : " + e.getMessage()
+                    "message", "ANALYSIS_FAILED_DESC"
                 )));
         }
     }
