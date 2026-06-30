@@ -8,10 +8,9 @@ FROM maven:3.9-eclipse-temurin-21 AS build
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier les fichiers de configuration Maven et le cache
+# Copier le fichier de configuration pom.xml
 # Cela permet de mettre en cache les dépendances
 COPY pom.xml .
-COPY settings.xml .
 
 # Copier le code source de l'application
 COPY src ./src
