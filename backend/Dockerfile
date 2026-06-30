@@ -10,10 +10,10 @@ WORKDIR /app
 
 # Copier le fichier de configuration pom.xml
 # Cela permet de mettre en cache les dépendances
-COPY pom.xml .
+COPY backend/pom.xml .
 
 # Copier le code source de l'application
-COPY src ./src
+COPY backend/src ./src
 
 # Compiler le projet et créer le JAR exécutable
 # -DskipTests désactive les tests pour un build plus rapide en production
