@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
@@ -23,7 +22,7 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, OAuth2SuccessHandler successHandler) {
         org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler logoutSuccessHandler = 
             new org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler();
         logoutSuccessHandler.setLogoutSuccessUrl(java.net.URI.create(allowedOrigins));
@@ -36,12 +35,13 @@ public class SecurityConfig {
                 .authenticationEntryPoint(new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED))
             )
             .authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/api/auth/status", "/api/auth/logout").permitAll()
+                .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/annotations").permitAll()
+                .pathMatchers("/api/auth/status", "/api/auth/logout", "/api/health").permitAll()
                 .anyExchange().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                // Redirige vers React (http://localhost:5173) après le succès de l'authentification GitHub
-                .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(allowedOrigins))
+                // Redirige vers React (http://localhost:5173) après le succès de l'authentification GitHub avec mise à jour du profil
+                .authenticationSuccessHandler(successHandler)
             )
             .logout(logout -> logout
                 .requiresLogout(org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers(
@@ -55,7 +55,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(allowedOrigins));
-        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

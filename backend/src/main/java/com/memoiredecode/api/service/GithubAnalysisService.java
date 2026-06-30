@@ -41,8 +41,17 @@ public class GithubAnalysisService {
             int commitCount) {
     }
 
+    public record SummaryContextDTO(
+            String description,
+            String language,
+            String framework,
+            boolean hasDocker,
+            String databaseDetected,
+            int pivotalFilesCount) {
+    }
+
     public record Identity(
-            String summary,
+            SummaryContextDTO summary,
             List<StackItem> stack,
             List<InfrastructureItem> infrastructure) {
     }
@@ -176,6 +185,10 @@ public class GithubAnalysisService {
                         .filter(path -> path != null && path.endsWith(".csproj"))
                         .findFirst();
                 Optional<String> goModPath = findFilePath(treeFiles, "go.mod");
+                Optional<String> packageSwiftPath = findFilePath(treeFiles, "Package.swift");
+                Optional<String> cargoTomlPath = findFilePath(treeFiles, "Cargo.toml");
+                Optional<String> gemfilePath = findFilePath(treeFiles, "Gemfile");
+                Optional<String> mixExsPath = findFilePath(treeFiles, "mix.exs");
 
                 Optional<String> dockerComposePath = findFilePath(treeFiles, "docker-compose.yml");
                 if (dockerComposePath.isEmpty()) {
@@ -208,6 +221,14 @@ public class GithubAnalysisService {
                                 .map(c -> Map.entry("csproj", c)),
                         downloadFileContent(owner, repo, goModPath, authHeader, treeFiles)
                                 .map(c -> Map.entry("goMod", c)),
+                        downloadFileContent(owner, repo, packageSwiftPath, authHeader, treeFiles)
+                                .map(c -> Map.entry("packageSwift", c)),
+                        downloadFileContent(owner, repo, cargoTomlPath, authHeader, treeFiles)
+                                .map(c -> Map.entry("cargoToml", c)),
+                        downloadFileContent(owner, repo, gemfilePath, authHeader, treeFiles)
+                                .map(c -> Map.entry("gemfile", c)),
+                        downloadFileContent(owner, repo, mixExsPath, authHeader, treeFiles)
+                                .map(c -> Map.entry("mixExs", c)),
                         downloadFileContent(owner, repo, dockerComposePath, authHeader, treeFiles)
                                 .map(c -> Map.entry("dockerCompose", c)),
                         downloadFileContent(owner, repo, envTemplatePath, authHeader, treeFiles)
@@ -259,7 +280,72 @@ public class GithubAnalysisService {
                                                     return getTopContributorsForFiles(owner, repo,
                                                             scoredFilesResult.criticalFiles(), authHeader)
                                                             .map(topContributors -> {
-                                                                Identity identity = new Identity(summary, stack,
+                                                                String mainLanguage = "Polyglot/Generic";
+                                                                if (stack != null) {
+                                                                    for (StackItem item : stack) {
+                                                                        if ("MAIN_LANGUAGE".equals(item.type())) {
+                                                                            mainLanguage = item.name();
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                String mainFramework = null;
+                                                                if (stack != null) {
+                                                                    for (StackItem item : stack) {
+                                                                        if (item.type() != null && (
+                                                                            item.type().startsWith("BACKEND_FRAMEWORK") ||
+                                                                            item.type().startsWith("FRONTEND_FRAMEWORK") ||
+                                                                            item.type().startsWith("FRONTEND_META_FRAMEWORK") ||
+                                                                            item.type().startsWith("API_FRAMEWORK")
+                                                                        )) {
+                                                                            mainFramework = item.name();
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                boolean hasDocker = false;
+                                                                if (treeFiles != null) {
+                                                                    hasDocker = treeFiles.stream()
+                                                                            .map(f -> (String) f.get("path"))
+                                                                            .filter(Objects::nonNull)
+                                                                            .anyMatch(path -> 
+                                                                                path.equalsIgnoreCase("Dockerfile") ||
+                                                                                path.endsWith("/Dockerfile") ||
+                                                                                path.equalsIgnoreCase("docker-compose.yml") ||
+                                                                                path.equalsIgnoreCase("docker-compose.yaml") ||
+                                                                                path.contains("/docker-compose.yml") ||
+                                                                                path.contains("/docker-compose.yaml")
+                                                                            );
+                                                                }
+
+                                                                String databaseDetected = null;
+                                                                if (infrastructure != null) {
+                                                                    for (InfrastructureItem item : infrastructure) {
+                                                                        if (item.name().equalsIgnoreCase("PostgreSQL")) {
+                                                                            databaseDetected = "PostgreSQL";
+                                                                            break;
+                                                                        } else if (item.name().equalsIgnoreCase("MySQL")) {
+                                                                            databaseDetected = "MySQL";
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                int pivotalFilesCount = scoredFilesResult.criticalFiles() != null ? scoredFilesResult.criticalFiles().size() : 0;
+                                                                String finalDesc = (repoDesc != null && !repoDesc.trim().isEmpty()) ? repoDesc.trim() : summary;
+
+                                                                SummaryContextDTO summaryContext = new SummaryContextDTO(
+                                                                        finalDesc,
+                                                                        mainLanguage,
+                                                                        mainFramework,
+                                                                        hasDocker,
+                                                                        databaseDetected,
+                                                                        pivotalFilesCount
+                                                                );
+
+                                                                Identity identity = new Identity(summaryContext, stack,
                                                                         infrastructure);
                                                                 ConfigManifest configManifest = new ConfigManifest(
                                                                         variables, prerequisites);
@@ -367,6 +453,10 @@ public class GithubAnalysisService {
             String pubspecYaml = contents.getOrDefault("pubspecYaml", "");
             String csproj = contents.getOrDefault("csproj", "");
             String goMod = contents.getOrDefault("goMod", "");
+            String packageSwift = contents.getOrDefault("packageSwift", "");
+            String cargoToml = contents.getOrDefault("cargoToml", "");
+            String gemfile = contents.getOrDefault("gemfile", "");
+            String mixExs = contents.getOrDefault("mixExs", "");
 
             // 1. PHP/Composer
             if (!composerJson.isEmpty()) {
@@ -426,6 +516,62 @@ public class GithubAnalysisService {
             if (!goMod.isEmpty()) {
                 String goVer = extractRegex(goMod, "go\\s+([0-9.]+)", 1);
                 stack.add(new StackItem("Go", goVer.isEmpty() ? "1.x" : goVer, "MAIN_LANGUAGE"));
+            }
+
+            // 5a. Swift (Vapor / Perfect)
+            try {
+                if (!packageSwift.isEmpty()) {
+                    stack.add(new StackItem("Swift", "5.x", "MAIN_LANGUAGE"));
+                    if (packageSwift.contains("Vapor") || packageSwift.toLowerCase().contains("vapor")) {
+                        stack.add(new StackItem("Vapor", "4.x", "BACKEND_FRAMEWORK"));
+                    } else if (packageSwift.contains("Perfect") || packageSwift.toLowerCase().contains("perfect")) {
+                        stack.add(new StackItem("Perfect", "3.x", "BACKEND_FRAMEWORK"));
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("ERROR_SWIFT_DETECTION: " + e.getMessage());
+            }
+
+            // 5b. Rust (Actix / Rocket / Tokio)
+            try {
+                if (!cargoToml.isEmpty()) {
+                    stack.add(new StackItem("Rust", "1.x", "MAIN_LANGUAGE"));
+                    if (cargoToml.contains("actix") || cargoToml.toLowerCase().contains("actix")) {
+                        stack.add(new StackItem("Actix", "4.x", "BACKEND_FRAMEWORK"));
+                    } else if (cargoToml.contains("rocket") || cargoToml.toLowerCase().contains("rocket")) {
+                        stack.add(new StackItem("Rocket", "0.5", "BACKEND_FRAMEWORK"));
+                    } else if (cargoToml.contains("tokio") || cargoToml.toLowerCase().contains("tokio")) {
+                        stack.add(new StackItem("Tokio", "1.x", "BACKEND_FRAMEWORK"));
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("ERROR_RUST_DETECTION: " + e.getMessage());
+            }
+
+            // 5c. Ruby (Rails / Sinatra)
+            try {
+                if (!gemfile.isEmpty()) {
+                    stack.add(new StackItem("Ruby", "3.x", "MAIN_LANGUAGE"));
+                    if (gemfile.contains("rails") || gemfile.toLowerCase().contains("rails")) {
+                        stack.add(new StackItem("Rails", "7.x", "BACKEND_FRAMEWORK"));
+                    } else if (gemfile.contains("sinatra") || gemfile.toLowerCase().contains("sinatra")) {
+                        stack.add(new StackItem("Sinatra", "3.x", "BACKEND_FRAMEWORK"));
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("ERROR_RUBY_DETECTION: " + e.getMessage());
+            }
+
+            // 5d. Elixir (Phoenix)
+            try {
+                if (!mixExs.isEmpty()) {
+                    stack.add(new StackItem("Elixir", "1.x", "MAIN_LANGUAGE"));
+                    if (mixExs.contains("phoenix") || mixExs.toLowerCase().contains("phoenix")) {
+                        stack.add(new StackItem("Phoenix", "1.7", "BACKEND_FRAMEWORK"));
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("ERROR_ELIXIR_DETECTION: " + e.getMessage());
             }
 
             // 6. Java/Kotlin

@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# Utilisation du .env pour configurer les variables d'environnement
+if [ -f ".env" ]; then
+    while IFS= read -r line || [ -n "$line" ]; do
+        if [[ ! "$line" =~ ^# ]] && [[ ! -z "$line" ]]; then
+            key=$(echo "$line" | cut -d'=' -f1 | xargs)
+            value=$(echo "$line" | cut -d'=' -f2- | xargs | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
+            if [ "$key" = "SPRING_DATASOURCE_URL" ] && [[ "$value" == *//*@* ]]; then
+                prefix="${value%%//*}//"
+                suffix="${value##*@}"
+                value="${prefix}${suffix}"
+            fi
+            export "$key=$value"
+        fi
+    done < .env
+fi
+
 # Vérification des variables d'environnement
 if [ -z "$GITHUB_CLIENT_ID" ] || [ -z "$GITHUB_CLIENT_SECRET" ]; then
     echo "Erreur : GITHUB_CLIENT_ID ou GITHUB_CLIENT_SECRET n'est pas défini."

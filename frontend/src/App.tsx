@@ -16,6 +16,19 @@ i18n
         resources: {
             en: {
                 translation: {
+                    profileSettings: "Profile Settings",
+                    language: "Language",
+                    personalToken: "Personal GitHub Token (PAT)",
+                    patDescription: "Use your own token to bypass the application's GitHub API limits. Stored securely (AES-256).",
+                    save: "Save",
+                    cancel: "Cancel",
+                    addNote: "Add note",
+                    notes: "Notes",
+                    noNotes: "No notes yet",
+                    connectToAnnotate: "Log in to annotate",
+                    annotatePlaceholder: "Write a collaborative note or feedback...",
+                    saving: "Saving...",
+                    delete: "Delete",
                     title: "Code Memory",
                     subtitle: "Identity card and architecture analysis of your codebase.",
                     ownerPlaceholder: "Owner (e.g. facebook)",
@@ -82,6 +95,17 @@ i18n
                     statusWarning: "Warning: Copyleft license detected",
                     copyCode: "Copy commands",
                     copiedCode: "Copied!",
+                    serverStarting: "Server starting...",
+                    defaultOsLabel: "Default Operating System",
+                    defaultPackageManagerLabel: "Default Package Manager",
+                    defaultTerminalLabel: "Default Terminal",
+                    edit: "Edit",
+                    macos_linux: "macOS / Linux",
+                    archWithFramework: "This project is developed in {{language}} and relies on the {{framework}} framework.",
+                    archWithoutFramework: "This project is developed in {{language}}.",
+                    infraDocker: "The application is containerized via Docker.",
+                    databaseText: "Data persistence is managed by {{database}}.",
+                    structureText: "The architecture relies on {{count}} pivotal files constituting the core of the business logic.",
 
                     // Markdown headers & categories translations (EN)
                     fileLabel: "File",
@@ -174,6 +198,19 @@ i18n
             },
             fr: {
                 translation: {
+                    profileSettings: "Paramètres du profil",
+                    language: "Langue",
+                    personalToken: "Token GitHub personnel (PAT)",
+                    patDescription: "Utilisez votre propre token pour contourner les limites d'API GitHub de l'application. Conservé de manière chiffrée (AES-256).",
+                    save: "Enregistrer",
+                    cancel: "Annuler",
+                    addNote: "Ajouter une note",
+                    notes: "Notes",
+                    noNotes: "Aucune note pour le moment",
+                    connectToAnnotate: "Connectez-vous pour annoter",
+                    annotatePlaceholder: "Écrire une note collaborative ou un feedback...",
+                    saving: "Enregistrement...",
+                    delete: "Supprimer",
                     title: "Mémoire de Code",
                     subtitle: "Carte d'identité et analyse d'architecture de votre codebase.",
                     ownerPlaceholder: "Propriétaire (ex: facebook)",
@@ -240,6 +277,17 @@ i18n
                     statusWarning: "Attention : Licence Copyleft détectée",
                     copyCode: "Copier les commandes",
                     copiedCode: "Copié !",
+                    serverStarting: "Démarrage du serveur...",
+                    defaultOsLabel: "Système d'exploitation par défaut",
+                    defaultPackageManagerLabel: "Gestionnaire de paquets par défaut",
+                    defaultTerminalLabel: "Terminal par défaut",
+                    edit: "Modifier",
+                    macos_linux: "macOS / Linux",
+                    archWithFramework: "Ce projet est développé en {{language}} et s'appuie sur le framework {{framework}}.",
+                    archWithoutFramework: "Ce projet est développé en {{language}}.",
+                    infraDocker: "L'application est conteneurisée via Docker.",
+                    databaseText: "La persistance des données est gérée par {{database}}.",
+                    structureText: "L'architecture repose sur {{count}} fichiers piliers constituant le cœur de la logique métier.",
 
                     // Markdown headers & categories translations (FR)
                     fileLabel: "Fichier",
@@ -332,6 +380,19 @@ i18n
             },
             es: {
                 translation: {
+                    profileSettings: "Configuración del perfil",
+                    language: "Idioma",
+                    personalToken: "Token personal de GitHub (PAT)",
+                    patDescription: "Use su propio token para evitar los límites de la API de GitHub de la aplicación. Guardado de forma segura (AES-256).",
+                    save: "Guardar",
+                    cancel: "Cancelar",
+                    addNote: "Añadir nota",
+                    notes: "Notas",
+                    noNotes: "No hay notas aún",
+                    connectToAnnotate: "Inicie sesión para anotar",
+                    annotatePlaceholder: "Escriba una nota colaborativa o comentario...",
+                    saving: "Guardando...",
+                    delete: "Eliminar",
                     title: "Memoria de Código",
                     subtitle: "Tarjeta de identidad y análisis de arquitectura de su base de código.",
                     ownerPlaceholder: "Propietario (ej: facebook)",
@@ -398,6 +459,17 @@ i18n
                     statusWarning: "Atención: Licencia Copyleft detectada",
                     copyCode: "Copiar comandos",
                     copiedCode: "¡Copiado!",
+                    serverStarting: "Iniciando servidor...",
+                    defaultOsLabel: "Sistema operativo por defecto",
+                    defaultPackageManagerLabel: "Gestor de paquetes por defecto",
+                    defaultTerminalLabel: "Terminal por defecto",
+                    edit: "Editar",
+                    macos_linux: "macOS / Linux",
+                    archWithFramework: "Este proyecto está desarrollado en {{language}} y se basa en el framework {{framework}}.",
+                    archWithoutFramework: "Este proyecto está desarrollado en {{language}}.",
+                    infraDocker: "La aplicación está contenedorizada mediante Docker.",
+                    databaseText: "La persistencia de los datos está gestionada por {{database}}.",
+                    structureText: "La arquitectura se basa en {{count}} archivos pilares que constituyen el núcleo de la lógica empresarial.",
 
                     // Markdown headers & categories translations (ES)
                     fileLabel: "Archivo",
@@ -580,9 +652,18 @@ interface LicenceAudit {
     details: DependencyLicence[];
 }
 
+interface SummaryContextDTO {
+    description: string;
+    language: string;
+    framework: string | null;
+    hasDocker: boolean;
+    databaseDetected: string | null;
+    pivotalFilesCount: number;
+}
+
 interface AnalysisResponse {
     identity: {
-        summary: string;
+        summary: string | SummaryContextDTO;
         stack: StackItem[];
         infrastructure: InfrastructureItem[];
     };
@@ -895,6 +976,45 @@ const MarkdownPreviewModal = ({ isOpen, onClose, markdownText, repoName, t }: Ma
     );
 };
 
+// Helper function to build dynamic translated summary from SummaryContextDTO
+function buildSemanticSummary(summaryObj: any, t: any): string {
+    if (!summaryObj) return "";
+    if (typeof summaryObj === 'string') return summaryObj;
+
+    const parts: string[] = [];
+
+    // 1. Description
+    if (summaryObj.description && summaryObj.description.trim()) {
+        parts.push(summaryObj.description.trim());
+    }
+
+    // 2. Architecture: Ce projet est développé en {language} [et s'appuie sur le framework {framework}]
+    if (summaryObj.language) {
+        if (summaryObj.framework) {
+            parts.push(t('archWithFramework', { language: summaryObj.language, framework: summaryObj.framework }));
+        } else {
+            parts.push(t('archWithoutFramework', { language: summaryObj.language }));
+        }
+    }
+
+    // 3. Infrastructure: L'application est conteneurisée via Docker
+    if (summaryObj.hasDocker) {
+        parts.push(t('infraDocker'));
+    }
+
+    // 4. Database: La persistance des données est gérée par {database}
+    if (summaryObj.databaseDetected) {
+        parts.push(t('databaseText', { database: summaryObj.databaseDetected }));
+    }
+
+    // 5. Structure: L'architecture repose sur {count} fichiers piliers constituant le cœur de la logique métier.
+    if (summaryObj.pivotalFilesCount !== undefined && summaryObj.pivotalFilesCount > 0) {
+        parts.push(t('structureText', { count: summaryObj.pivotalFilesCount }));
+    }
+
+    return parts.join(' ');
+}
+
 // Export to Markdown text generator
 function generateMarkdownText(analysis: AnalysisResponse, repoName: string, t: any): string {
     const translatePrereq = (req: string) => {
@@ -918,7 +1038,7 @@ function generateMarkdownText(analysis: AnalysisResponse, repoName: string, t: a
 
     // 2. Semantic Summary
     md += `## ${t('semanticSummary')}\n\n`;
-    md += `${analysis.identity.summary || 'N/A'}\n\n`;
+    md += `${buildSemanticSummary(analysis.identity.summary, t) || 'N/A'}\n\n`;
 
     // 3. Quick Start
     md += `## ${t('quickStartTitle')}\n\n`;
@@ -1203,22 +1323,78 @@ function AppContent() {
     const [copiedCode, setCopiedCode] = useState(false);
     const [terminalType, setTerminalType] = useState<'bash' | 'powershell'>('bash');
 
-    useEffect(() => {
-        const checkAuthStatus = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/api/auth/status');
-                if (response.data && response.data.authenticated) {
-                    setIsAuthenticated(true);
-                    setUsername(response.data.username || '');
-                    setAvatarUrl(response.data.avatarUrl || '');
-                } else {
-                    setIsAuthenticated(false);
+    // V4 Profile & Annotations States
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [personalToken, setPersonalToken] = useState('');
+    const [hasPersonalToken, setHasPersonalToken] = useState(false);
+    const [profileLanguage, setProfileLanguage] = useState('en');
+    const [annotations, setAnnotations] = useState<any[]>([]);
+    const [activeAnnotationFile, setActiveAnnotationFile] = useState<string | null>(null);
+    const [newAnnotationText, setNewAnnotationText] = useState('');
+    const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+    // V4 Extended States
+    const [isBackendReady, setIsBackendReady] = useState(false);
+    const [defaultOs, setDefaultOs] = useState<'windows' | 'macos_linux'>('macos_linux');
+    const [defaultPackageManager, setDefaultPackageManager] = useState<'native' | 'winget' | 'brew'>('native');
+    const [defaultTerminal, setDefaultTerminal] = useState<'bash' | 'powershell'>('bash');
+    const [searchHistory, setSearchHistory] = useState<string[]>([]);
+    const [editingPat, setEditingPat] = useState(false);
+
+    const checkAuthStatus = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/api/auth/status');
+            if (response.data && response.data.authenticated) {
+                setIsAuthenticated(true);
+                setUsername(response.data.username || '');
+                setAvatarUrl(response.data.avatarUrl || '');
+
+                const lang = response.data.preferredLanguage || 'en';
+                setProfileLanguage(lang);
+                setHasPersonalToken(response.data.hasPersonalToken || false);
+
+                if (response.data.defaultOs) setDefaultOs(response.data.defaultOs);
+                if (response.data.defaultPackageManager) {
+                    setDefaultPackageManager(response.data.defaultPackageManager);
+                    setPackageManager(response.data.defaultPackageManager);
                 }
-            } catch (err) {
+                if (response.data.defaultTerminal) {
+                    setDefaultTerminal(response.data.defaultTerminal);
+                    setTerminalType(response.data.defaultTerminal);
+                }
+                if (response.data.searchHistory) setSearchHistory(response.data.searchHistory);
+
+                // Synchroniser i18n avec la langue stockée en BDD
+                if (lang !== i18nInstance.language) {
+                    i18nInstance.changeLanguage(lang);
+                }
+            } else {
                 setIsAuthenticated(false);
             }
+        } catch (err) {
+            setIsAuthenticated(false);
+        }
+    };
+
+    useEffect(() => {
+        let pollInterval: any;
+        const checkHealth = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/health');
+                if (response.data && response.data.status === 'UP') {
+                    setIsBackendReady(true);
+                    clearInterval(pollInterval);
+                    checkAuthStatus();
+                }
+            } catch (err) {
+                setIsBackendReady(false);
+            }
         };
-        checkAuthStatus();
+
+        checkHealth();
+        pollInterval = setInterval(checkHealth, 3000);
+
+        return () => clearInterval(pollInterval);
     }, []);
 
     useEffect(() => {
@@ -1249,6 +1425,13 @@ function AppContent() {
         }
     });
 
+    const activeHistory = isAuthenticated === true
+        ? searchHistory.map(h => {
+            const parts = h.split('/');
+            return { owner: parts[0] || '', repo: parts[1] || '' };
+          })
+        : history;
+
     // Session Cache
     const cache = useRef<Record<string, AnalysisResponse>>({});
 
@@ -1264,6 +1447,17 @@ function AppContent() {
         });
     };
 
+    const fetchAnnotations = async (cleanOwner: string, cleanRepo: string) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/annotations?repo=${cleanOwner}/${cleanRepo}`);
+            if (Array.isArray(response.data)) {
+                setAnnotations(response.data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch annotations", err);
+        }
+    };
+
     const triggerAnalysis = async (cleanOwner: string, cleanRepo: string) => {
         setLoading(true);
         setError('');
@@ -1276,6 +1470,10 @@ function AppContent() {
             setAnalysis(cache.current[cacheKey]);
             setLoading(false);
             addToHistory(cleanOwner, cleanRepo);
+            fetchAnnotations(cleanOwner, cleanRepo);
+            if (isAuthenticated === true) {
+                checkAuthStatus();
+            }
             return;
         }
 
@@ -1291,6 +1489,10 @@ function AppContent() {
                     cache.current[cacheKey] = response.data;
                     setAnalysis(response.data);
                     addToHistory(cleanOwner, cleanRepo);
+                    fetchAnnotations(cleanOwner, cleanRepo);
+                    if (isAuthenticated === true) {
+                        checkAuthStatus();
+                    }
                     break;
                 } else {
                     throw new Error("UNEXPECTED_DATA_FORMAT");
@@ -1345,6 +1547,80 @@ function AppContent() {
         }
     };
 
+    const handleSaveProfile = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSavingProfile(true);
+        try {
+            const payload: any = {
+                preferredLanguage: profileLanguage,
+                defaultOs,
+                defaultPackageManager,
+                defaultTerminal
+            };
+            if (editingPat) {
+                payload.personalToken = personalToken;
+            }
+            const response = await axios.patch('http://localhost:8080/api/user/profile', payload);
+            if (response.data && response.data.success) {
+                if (profileLanguage !== i18nInstance.language) {
+                    i18nInstance.changeLanguage(profileLanguage);
+                }
+                setEditingPat(false);
+                setIsProfileModalOpen(false);
+                await checkAuthStatus();
+            }
+        } catch (err) {
+            console.error("Failed to update profile", err);
+        } finally {
+            setIsSavingProfile(false);
+        }
+    };
+
+    const handleDeletePat = async () => {
+        try {
+            const response = await axios.patch('http://localhost:8080/api/user/profile', {
+                personalToken: ""
+            });
+            if (response.data && response.data.success) {
+                setPersonalToken('');
+                setHasPersonalToken(false);
+                setEditingPat(false);
+                await checkAuthStatus();
+            }
+        } catch (err) {
+            console.error("Failed to delete PAT", err);
+        }
+    };
+
+    const handleAddAnnotation = async (filePath: string) => {
+        if (!newAnnotationText.trim()) return;
+        try {
+            const response = await axios.post('http://localhost:8080/api/annotations', {
+                repoFullName: `${owner}/${repo}`,
+                filePath,
+                content: newAnnotationText
+            });
+            if (response.data && response.data.success) {
+                setNewAnnotationText('');
+                setActiveAnnotationFile(null);
+                fetchAnnotations(owner, repo);
+            }
+        } catch (err) {
+            console.error("Failed to add annotation", err);
+        }
+    };
+
+    const handleDeleteAnnotation = async (id: string) => {
+        try {
+            const response = await axios.delete(`http://localhost:8080/api/annotations/${id}`);
+            if (response.data && response.data.success) {
+                fetchAnnotations(owner, repo);
+            }
+        } catch (err) {
+            console.error("Failed to delete annotation", err);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
@@ -1372,7 +1648,20 @@ function AppContent() {
                                         {username.substring(0, 2).toUpperCase()}
                                     </div>
                                 )}
-                                <span className="text-sm font-semibold text-slate-700">{username}</span>
+                                <button
+                                    onClick={() => {
+                                        setPersonalToken('');
+                                        setEditingPat(false);
+                                        setIsProfileModalOpen(true);
+                                    }}
+                                    className="text-sm font-semibold text-slate-700 hover:text-slate-900 focus:outline-none flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0 font-sans"
+                                >
+                                    <span>{username}</span>
+                                    <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="12" r="3" />
+                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                    </svg>
+                                </button>
                                 <a
                                     href="http://localhost:8080/api/auth/logout"
                                     className="text-xs text-red-500 hover:text-red-700 font-semibold cursor-pointer border-l border-slate-200 pl-2.5 transition-colors"
@@ -1383,10 +1672,18 @@ function AppContent() {
                         ) : isAuthenticated === false ? (
                             <button
                                 onClick={handleLoginClick}
-                                disabled={isLoggingIn}
+                                disabled={!isBackendReady || isLoggingIn}
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium shadow-sm transition-all cursor-pointer disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
                             >
-                                {isLoggingIn ? (
+                                {!isBackendReady ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        <span>{t('serverStarting')}</span>
+                                    </>
+                                ) : isLoggingIn ? (
                                     <>
                                         <LoadingSpinner className="w-4 h-4 text-slate-400" />
                                         <span>{t('connecting')}</span>
@@ -1441,7 +1738,7 @@ function AppContent() {
 
                     <button
                         type="submit"
-                        disabled={loading || isAuthenticated !== true}
+                        disabled={loading || isAuthenticated !== true || !isBackendReady}
                         className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed border disabled:border-slate-200/60"
                     >
                         {loading ? (
@@ -1464,14 +1761,14 @@ function AppContent() {
                     )}
 
                     {/* Historique tag-pills */}
-                    {history.length > 0 && (
+                    {activeHistory.length > 0 && (
                         <div className="mt-6 pt-4 border-t border-slate-100">
                             <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                                 <HistoryIcon />
                                 <span>{t('recentSearchesTitle')}</span>
                             </h3>
                             <div className="flex flex-wrap gap-2">
-                                {history.map((item, idx) => (
+                                {activeHistory.map((item, idx) => (
                                     <button
                                         type="button"
                                         key={idx}
@@ -1553,7 +1850,7 @@ function AppContent() {
                                 </div>
 
                                 <p className="text-slate-700 leading-relaxed text-base mb-6">
-                                    {analysis.identity.summary}
+                                    {buildSemanticSummary(analysis.identity.summary, t)}
                                 </p>
 
                                 <div className="mb-6">
@@ -1740,29 +2037,121 @@ function AppContent() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    {analysis.criticalFiles.map((file, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded bg-slate-50 flex items-center justify-center border border-slate-200/50">
-                                                    <CodeIcon className="text-slate-400" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-semibold text-slate-800 text-sm">{file.name}</h4>
-                                                    <p className="text-slate-400 text-xs font-mono">{file.path}</p>
-                                                </div>
-                                            </div>
+                                    {analysis.criticalFiles.map((file, idx) => {
+                                        const fileAnnotations = annotations.filter(a => a.filePath === file.path);
+                                        return (
+                                            <div key={idx} className="border border-slate-200/60 rounded-xl overflow-hidden bg-slate-50/10">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded bg-slate-50 flex items-center justify-center border border-slate-200/50">
+                                                            <CodeIcon className="text-slate-400" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <h4 className="font-semibold text-slate-800 text-sm">{file.name}</h4>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (activeAnnotationFile === file.path) {
+                                                                            setActiveAnnotationFile(null);
+                                                                        } else {
+                                                                            setNewAnnotationText('');
+                                                                            setActiveAnnotationFile(file.path);
+                                                                        }
+                                                                    }}
+                                                                    className="text-slate-400 hover:text-blue-500 cursor-pointer focus:outline-none p-1 bg-transparent border-0 flex items-center justify-center transition-colors"
+                                                                    title={t('addNote')}
+                                                                >
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641l-.57 2.22c-.105.412.316.76.697.558l2.22-1.182a1.815 1.815 0 0 1 1.62-.054c1.196.533 2.507.827 3.864.827z" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                            <p className="text-slate-400 text-xs font-mono">{file.path}</p>
+                                                        </div>
+                                                    </div>
 
-                                            <div className="flex items-center gap-4">
-                                                <p className="text-slate-500 text-xs sm:text-right max-w-sm sm:line-clamp-1">{translateCriticalFileReason(file.reason)}</p>
-                                                <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 text-xs font-bold border border-orange-100">
-                                                    {t('score')}: {file.score}
-                                                </span>
+                                                    <div className="flex items-center gap-4">
+                                                        <p className="text-slate-500 text-xs sm:text-right max-w-sm sm:line-clamp-1">{translateCriticalFileReason(file.reason)}</p>
+                                                        <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 text-xs font-bold border border-orange-100">
+                                                            {t('score')}: {file.score}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Annotations List */}
+                                                {fileAnnotations.length > 0 && (
+                                                    <div className="px-4 py-3 bg-slate-50/50 border-b border-slate-100/50 space-y-2.5">
+                                                        {fileAnnotations.map((ann) => (
+                                                            <div key={ann.id} className="bg-white border border-slate-200/60 rounded-lg p-3 shadow-sm flex justify-between items-start gap-4">
+                                                                <div className="flex gap-3">
+                                                                    {ann.author.avatarUrl ? (
+                                                                        <img src={ann.author.avatarUrl} alt={ann.author.username} className="w-6 h-6 rounded-full border border-slate-200 mt-0.5 shrink-0" />
+                                                                    ) : (
+                                                                        <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 mt-0.5 shrink-0">
+                                                                            {ann.author.username.substring(0, 2).toUpperCase()}
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="min-w-0">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-xs font-semibold text-slate-700">{ann.author.username}</span>
+                                                                            <span className="text-[10px] text-slate-400 font-mono">{new Date(ann.createdAt).toLocaleDateString()}</span>
+                                                                        </div>
+                                                                        <p className="text-slate-600 text-xs mt-1 whitespace-pre-wrap font-sans font-medium">{ann.content}</p>
+                                                                    </div>
+                                                                </div>
+                                                                {isAuthenticated && username === ann.author.username && (
+                                                                    <button
+                                                                        onClick={() => handleDeleteAnnotation(ann.id)}
+                                                                        className="text-slate-400 hover:text-red-500 cursor-pointer p-0.5 bg-transparent border-0 flex items-center justify-center focus:outline-none transition-colors"
+                                                                        title={t('delete')}
+                                                                    >
+                                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                                        </svg>
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* Annotation Add Form */}
+                                                {activeAnnotationFile === file.path && (
+                                                    <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-3 font-sans animate-fade-in">
+                                                        <textarea
+                                                            value={newAnnotationText}
+                                                            onChange={(e) => setNewAnnotationText(e.target.value)}
+                                                            placeholder={t('annotatePlaceholder')}
+                                                            rows={3}
+                                                            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
+                                                        />
+                                                        <div className="flex justify-end gap-2 items-center">
+                                                            {!isAuthenticated && (
+                                                                <span className="text-[11px] text-slate-400 italic mr-2 font-sans font-medium">
+                                                                    {t('connectToAnnotate')}
+                                                                </span>
+                                                            )}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setActiveAnnotationFile(null)}
+                                                                className="px-3 py-1.5 border border-slate-200 rounded text-xs font-semibold text-slate-500 hover:text-slate-700 transition-colors cursor-pointer bg-white"
+                                                            >
+                                                                {t('cancel')}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                disabled={!isAuthenticated || !newAnnotationText.trim()}
+                                                                onClick={() => handleAddAnnotation(file.path)}
+                                                                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-semibold transition-colors shadow-sm cursor-pointer disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                                            >
+                                                                {t('save')}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </section>
 
@@ -2033,6 +2422,149 @@ function AppContent() {
                     repoName={routeRepo || 'repo'}
                     t={t}
                 />
+            )}
+
+            {isProfileModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in font-sans">
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden animate-scale-up">
+                        <div className="flex justify-between items-center border-b border-slate-100 px-6 py-4">
+                            <h3 className="text-lg font-bold text-slate-900">{t('profileSettings')}</h3>
+                            <button
+                                onClick={() => setIsProfileModalOpen(false)}
+                                className="text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer bg-transparent border-none p-0"
+                            >
+                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+                        <form onSubmit={handleSaveProfile} className="p-6 space-y-6">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                    {t('language')}
+                                </label>
+                                <select
+                                    value={profileLanguage}
+                                    onChange={(e) => setProfileLanguage(e.target.value)}
+                                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
+                                >
+                                    <option value="en">English (EN)</option>
+                                    <option value="fr">Français (FR)</option>
+                                    <option value="es">Español (ES)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                    {t('defaultOsLabel')}
+                                </label>
+                                <select
+                                    value={defaultOs}
+                                    onChange={(e) => setDefaultOs(e.target.value as any)}
+                                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
+                                >
+                                    <option value="windows">Windows</option>
+                                    <option value="macos_linux">{t('macos_linux')}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                    {t('defaultTerminalLabel')}
+                                </label>
+                                <select
+                                    value={defaultTerminal}
+                                    onChange={(e) => setDefaultTerminal(e.target.value as any)}
+                                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
+                                >
+                                    <option value="bash">Bash / Zsh</option>
+                                    <option value="powershell">PowerShell</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                    {t('defaultPackageManagerLabel')}
+                                </label>
+                                <select
+                                    value={defaultPackageManager}
+                                    onChange={(e) => setDefaultPackageManager(e.target.value as any)}
+                                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
+                                >
+                                    <option value="native">{t('native')}</option>
+                                    <option value="winget">Winget</option>
+                                    <option value="brew">Homebrew</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                    {t('personalToken')}
+                                </label>
+                                {hasPersonalToken && !editingPat ? (
+                                    <div className="flex gap-2 items-center">
+                                        <input
+                                            type="text"
+                                            disabled
+                                            value="ghp_************************************"
+                                            className="flex-1 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 px-3 py-2 text-sm focus:outline-none font-mono cursor-not-allowed"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setPersonalToken('');
+                                                setEditingPat(true);
+                                            }}
+                                            className="text-slate-400 hover:text-blue-500 cursor-pointer p-2 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors flex items-center justify-center focus:outline-none"
+                                            title={t('edit')}
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleDeletePat}
+                                            className="text-slate-400 hover:text-red-600 cursor-pointer p-2 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors flex items-center justify-center focus:outline-none"
+                                            title={t('delete')}
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <input
+                                        type="password"
+                                        value={personalToken}
+                                        onChange={(e) => setPersonalToken(e.target.value)}
+                                        placeholder="ghp_..."
+                                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-slate-400 font-mono"
+                                    />
+                                )}
+                                <p className="text-[11px] text-slate-400 mt-2 leading-relaxed font-sans">
+                                    {t('patDescription')}
+                                    <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 underline ml-1">
+                                        https://github.com/settings/tokens
+                                    </a>
+                                </p>
+                            </div>
+                            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsProfileModalOpen(false)}
+                                    className="px-4 py-2 border border-slate-200 rounded-lg text-slate-500 hover:text-slate-700 text-sm font-semibold transition-colors cursor-pointer bg-white"
+                                >
+                                    {t('cancel')}
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSavingProfile}
+                                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm cursor-pointer disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                >
+                                    {isSavingProfile ? t('saving') : t('save')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             )}
         </div>
     );
