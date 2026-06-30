@@ -11,6 +11,8 @@ import enTranslation from './locales/en.json';
 import frTranslation from './locales/fr.json';
 import esTranslation from './locales/es.json';
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/+$/, '');
+axios.defaults.baseURL = apiBaseUrl;
 axios.defaults.withCredentials = true;
 
 // Initialize i18next
@@ -804,7 +806,7 @@ function AppContent() {
 
     const checkAuthStatus = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/auth/status');
+            const response = await axios.get('/api/auth/status');
             if (response.data && response.data.authenticated) {
                 setIsAuthenticated(true);
                 setUsername(response.data.username || '');
@@ -841,7 +843,7 @@ function AppContent() {
         let pollInterval: any;
         const checkHealth = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/health');
+                const response = await axios.get('/api/health');
                 if (response.data && response.data.status === 'UP') {
                     setIsBackendReady(true);
                     clearInterval(pollInterval);
@@ -873,7 +875,7 @@ function AppContent() {
 
     const handleLoginClick = () => {
         setIsLoggingIn(true);
-        window.location.href = 'http://localhost:8080/oauth2/authorization/github';
+        window.location.href = `${apiBaseUrl}/oauth2/authorization/github`;
     };
 
     // localStorage History
@@ -910,7 +912,7 @@ function AppContent() {
 
     const fetchAnnotations = async (cleanOwner: string, cleanRepo: string) => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/annotations?repo=${cleanOwner}/${cleanRepo}`);
+            const response = await axios.get(`/api/annotations?repo=${cleanOwner}/${cleanRepo}`);
             if (Array.isArray(response.data)) {
                 setAnnotations(response.data);
             }
@@ -941,7 +943,7 @@ function AppContent() {
         const maxRetries = 3;
         let attempt = 0;
         let delay = 1000;
-        const url = `http://localhost:8080/api/github/analyze/${cleanOwner}/${cleanRepo}`;
+        const url = `/api/github/analyze/${cleanOwner}/${cleanRepo}`;
 
         while (true) {
             try {
@@ -963,7 +965,7 @@ function AppContent() {
                 const is502 = err.response?.status === 502;
 
                 if (err.response?.status === 401) {
-                    window.location.href = 'http://localhost:8080/oauth2/authorization/github';
+                    window.location.href = `${apiBaseUrl}/oauth2/authorization/github`;
                     return;
                 }
 
@@ -1021,7 +1023,7 @@ function AppContent() {
             if (editingPat) {
                 payload.personalToken = personalToken;
             }
-            const response = await axios.patch('http://localhost:8080/api/user/profile', payload);
+            const response = await axios.patch('/api/user/profile', payload);
             if (response.data && response.data.success) {
                 if (profileLanguage !== i18nInstance.language) {
                     i18nInstance.changeLanguage(profileLanguage);
@@ -1039,7 +1041,7 @@ function AppContent() {
 
     const handleDeletePat = async () => {
         try {
-            const response = await axios.patch('http://localhost:8080/api/user/profile', {
+            const response = await axios.patch('/api/user/profile', {
                 personalToken: ""
             });
             if (response.data && response.data.success) {
@@ -1056,7 +1058,7 @@ function AppContent() {
     const handleAddAnnotation = async (filePath: string) => {
         if (!newAnnotationText.trim()) return;
         try {
-            const response = await axios.post('http://localhost:8080/api/annotations', {
+            const response = await axios.post('/api/annotations', {
                 repoFullName: `${owner}/${repo}`,
                 filePath,
                 content: newAnnotationText
@@ -1073,7 +1075,7 @@ function AppContent() {
 
     const handleDeleteAnnotation = async (id: string) => {
         try {
-            const response = await axios.delete(`http://localhost:8080/api/annotations/${id}`);
+            const response = await axios.delete(`/api/annotations/${id}`);
             if (response.data && response.data.success) {
                 fetchAnnotations(owner, repo);
             }
@@ -1124,7 +1126,7 @@ function AppContent() {
                                     </svg>
                                 </button>
                                 <a
-                                    href="http://localhost:8080/api/auth/logout"
+                                    href={`${apiBaseUrl}/api/auth/logout`}
                                     className="text-xs text-red-500 hover:text-red-700 font-semibold cursor-pointer border-l border-slate-200 pl-2.5 transition-colors"
                                 >
                                     {t('logout')}
