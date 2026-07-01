@@ -1,0 +1,16 @@
+{
+  "name": "Code Memory",
+  "short_name": "CodeMemory",
+  "description": "Fiche d'identité et analyse d'architecture de votre base de code.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

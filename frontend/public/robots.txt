@@ -1,0 +1,41 @@
+# Robots.txt for Code Memory (https://code-memory.eli-dev.fr)
+# Optimized for standard Search Engines & AI Agents
+
+# Sitemaps
+Sitemap: https://code-memory.eli-dev.fr/sitemap.xml
+
+# Standard Search Engines (Google, Bing, Yahoo, DuckDuckGo, Qwant, Brave)
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# AI Crawlers & Scrapers (Explicit permission for indexing and citation)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Anthropic-ai
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
+User-agent: FacebookBot
+Allow: /

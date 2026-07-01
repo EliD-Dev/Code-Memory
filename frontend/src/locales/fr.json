@@ -1,4 +1,24 @@
 {
+  "seo": {
+    "home": {
+      "title": "Mémoire de Code - Analyseur d'architecture de dépôt GitHub et Audit Interactif",
+      "desc": "Analysez la stack technique, l'infrastructure, les prérequis système, la dette technique et les licences de n'importe quel dépôt GitHub. Tableau de bord fluide avec notes collaboratives."
+    },
+    "legal": {
+      "mentions": {
+        "title": "Mentions Légales - Code Memory",
+        "desc": "Informations légales, identité d'entreprise et hébergement pour la plateforme Code Memory (Mémoire de Code)."
+      },
+      "privacy": {
+        "title": "Politique de Confidentialité - Code Memory",
+        "desc": "Politique de confidentialité, collecte des données et droits RGPD pour les utilisateurs de Code Memory."
+      },
+      "cgu": {
+        "title": "Conditions Générales d'Utilisation - Code Memory",
+        "desc": "Conditions générales d'utilisation et règles de fonctionnement de la plateforme Code Memory."
+      }
+    }
+  },
   "profileSettings": "Paramètres du profil",
   "language": "Langue",
   "personalToken": "Token GitHub personnel (PAT)",
@@ -79,6 +99,8 @@
   "copyCode": "Copier les commandes",
   "copiedCode": "Copié !",
   "serverStarting": "Démarrage du serveur...",
+  "errorGithubAccount": "Aucun compte GitHub connecté",
+  "errorGithubAccountDesc": "Vérifier que les variables d'environnement GITHUB_CLIENT_ID et GITHUB_CLIENT_SECRET sont correctement configurées dans le fichier .env. Par défaut, l'URL du frontend est http://localhost:5173, mais vous pouvez modifier la variable FRONTEND_URL dans le fichier .env si nécessaire.",
   "defaultOsLabel": "Système d'exploitation par défaut",
   "defaultPackageManagerLabel": "Gestionnaire de paquets par défaut",
   "defaultTerminalLabel": "Terminal par défaut",

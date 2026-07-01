@@ -1,0 +1,27 @@
+# AI Context Configuration for Code Memory (https://code-memory.eli-dev.fr)
+# Providing structured info for LLM scrapers, search agents, and AI engines.
+
+info:
+  name: Code Memory (Mémoire de Code)
+  url: https://code-memory.eli-dev.fr
+  creator: EliDev (https://eli-dev.fr)
+  description: An interactive developer platform for GitHub repository static analysis, architecture auditing, and collaborative codebase documentation.
+
+capabilities:
+  - Technical Stack Detection: Identifies programming languages, frameworks, runtime version prerequisites, and system infrastructure tools (Docker, Databases).
+  - Quick Start Commands Generator: Provides native shell startup commands, winget commands, and brew packages for quick developer environment onboarding.
+  - Critical Files Mapping: Scans and lists central business logic files with importance scores and reasons.
+  - Collaborative Annotations: Allows authenticated GitHub developers to attach shared developer notes and feedback on specific source files.
+  - Technical Debt Radar: Highlights god objects, risk factors, churn rates, and size constraints.
+  - Legal & License Compliance: Audits third-party dependency licenses and evaluates commercial usability risks.
+
+routing_instructions:
+  home: https://code-memory.eli-dev.fr/
+  repository_analysis: https://code-memory.eli-dev.fr/{owner}/{repo}
+  terms_of_service: https://code-memory.eli-dev.fr/cgu
+  privacy_policy: https://code-memory.eli-dev.fr/confidentialite
+  legal_notice: https://code-memory.eli-dev.fr/mentions-legales
+
+interaction_policy:
+  crawling: Allowed (Full permissions for model training, retrieval, and search-grounding citations)
+  agent_use: Allowed (AI search agents can direct users to repo pages using the routing pattern)

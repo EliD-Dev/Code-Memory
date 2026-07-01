@@ -1,4 +1,24 @@
 {
+    "seo": {
+        "home": {
+            "title": "Code Memory - GitHub Repository Architecture Analyzer & Interactive Audit",
+            "desc": "Analyze the technical stack, infrastructure, system prerequisites, technical debt, and dependency licenses of any GitHub repository. Clean responsive dashboard with collaborative notes."
+        },
+        "legal": {
+            "mentions": {
+                "title": "Legal Notice - Code Memory",
+                "desc": "Legal information, corporate identity, and hosting details for the Code Memory platform."
+            },
+            "privacy": {
+                "title": "Privacy Policy - Code Memory",
+                "desc": "Privacy policy, data collection, and GDPR rights for users of Code Memory."
+            },
+            "cgu": {
+                "title": "Terms of Service - Code Memory",
+                "desc": "General terms of service and usage conditions for Code Memory."
+            }
+        }
+    },
     "profileSettings": "Profile Settings",
     "language": "Language",
     "personalToken": "Personal GitHub Token (PAT)",
@@ -79,6 +99,8 @@
     "copyCode": "Copy commands",
     "copiedCode": "Copied!",
     "serverStarting": "Server starting...",
+    "errorGithubAccount": "No GitHub account connected",
+    "errorGithubAccountDesc": "Verify that the GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET environment variables are correctly configured in the .env file. By default, the frontend URL is http://localhost:5173, but you can change the FRONTEND_URL variable in the .env file if necessary.",
     "defaultOsLabel": "Default Operating System",
     "defaultPackageManagerLabel": "Default Package Manager",
     "defaultTerminalLabel": "Default Terminal",

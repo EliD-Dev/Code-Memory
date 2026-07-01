@@ -31,6 +31,91 @@ i18n
         }
     });
 
+// Hook for dynamic SEO meta injection
+export function useDocumentSEO(titleKey: string, descKey: string, path: string) {
+    const { t, i18n: i18nInstance } = useTranslation();
+
+    useEffect(() => {
+        // 1. Update HTML lang tag
+        const lang = i18nInstance.language || 'en';
+        document.documentElement.lang = lang;
+
+        // 2. Set document title
+        document.title = t(titleKey);
+
+        // 3. Set standard meta description
+        let metaDesc = document.querySelector("meta[name='description']");
+        if (!metaDesc) {
+            metaDesc = document.createElement("meta");
+            metaDesc.setAttribute("name", "description");
+            document.head.appendChild(metaDesc);
+        }
+        metaDesc.setAttribute("content", t(descKey));
+
+        // 4. Set OpenGraph Title
+        let ogTitle = document.querySelector("meta[property='og:title']");
+        if (!ogTitle) {
+            ogTitle = document.createElement("meta");
+            ogTitle.setAttribute("property", "og:title");
+            document.head.appendChild(ogTitle);
+        }
+        ogTitle.setAttribute("content", t(titleKey));
+
+        // 5. Set OpenGraph Description
+        let ogDesc = document.querySelector("meta[property='og:description']");
+        if (!ogDesc) {
+            ogDesc = document.createElement("meta");
+            ogDesc.setAttribute("property", "og:description");
+            document.head.appendChild(ogDesc);
+        }
+        ogDesc.setAttribute("content", t(descKey));
+
+        // 6. Set Canonical link
+        const domain = "https://code-memory.eli-dev.fr";
+        const canonicalUrl = `${domain}${path}`;
+        let canonical = document.querySelector("link[rel='canonical']");
+        if (!canonical) {
+            canonical = document.createElement("link");
+            canonical.setAttribute("rel", "canonical");
+            document.head.appendChild(canonical);
+        }
+        canonical.setAttribute("href", canonicalUrl);
+
+        // 7. Inject JSON-LD Schema.org Structured Data
+        let jsonLdScript = document.getElementById("json-ld-seo") as HTMLScriptElement;
+        if (!jsonLdScript) {
+            jsonLdScript = document.createElement("script");
+            jsonLdScript.id = "json-ld-seo";
+            jsonLdScript.type = "application/ld+json";
+            document.head.appendChild(jsonLdScript);
+        }
+
+        const schema = {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Code Memory",
+            "alternateName": t("title"),
+            "url": canonicalUrl,
+            "description": t(descKey),
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "All",
+            "browserRequirements": "Requires JavaScript. Requires HTML5.",
+            "author": {
+                "@type": "Organization",
+                "name": "EliDev",
+                "url": "https://eli-dev.fr/"
+            },
+            "offers": {
+                "@type": "Offer",
+                "price": "0.00",
+                "priceCurrency": "EUR"
+            }
+        };
+
+        jsonLdScript.text = JSON.stringify(schema);
+    }, [titleKey, descKey, path, i18nInstance.language, t]);
+}
+
 // TypeScript interfaces for static analysis dashboard
 interface StackItem {
     name: string;
@@ -345,15 +430,15 @@ const MarkdownPreviewModal = ({ isOpen, onClose, markdownText, repoName, t }: Ma
             {/* Backdrop */}
             <div
                 className="fixed inset-0 backdrop-blur-sm bg-slate-500/20 transition-opacity"
-                onClick={onClose}
             />
 
             {/* Modal Box */}
-            <div className="relative bg-white rounded-xl border border-slate-200 shadow-2xl max-w-3xl w-full p-6 flex flex-col z-10 transition-all transform scale-100">
+            <div className="relative bg-white rounded-xl border border-slate-200 shadow-2xl w-[min(95vw,48rem)] max-h-[min(90vh,40rem)] p-[clamp(1rem,3vw,1.5rem)] flex flex-col z-10 transition-all transform scale-100">
                 {/* Close button top right */}
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100 cursor-pointer hover:text-red-600"
+                    aria-label={t('close') || 'Close'}
                 >
                     <svg className="w-5 h-5 text-red-600 hover:text-red-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                         <line x1="18" y1="6" x2="6" y2="18" />
@@ -367,7 +452,7 @@ const MarkdownPreviewModal = ({ isOpen, onClose, markdownText, repoName, t }: Ma
                 </h3>
 
                 {/* Toggle Mode */}
-                <div className="flex bg-slate-100 p-1 rounded-md w-fit mb-4 border border-slate-200 font-sans">
+                <div className="flex bg-slate-100 p-1 rounded-md w-fit mb-[clamp(0.75rem,2vh,1.25rem)] border border-slate-200 font-sans">
                     <button
                         type="button"
                         onClick={() => setViewMode('preview')}
@@ -395,7 +480,7 @@ const MarkdownPreviewModal = ({ isOpen, onClose, markdownText, repoName, t }: Ma
                 </div>
 
                 {/* Markdown text/preview area */}
-                <div className="max-h-[60vh] overflow-y-auto bg-slate-50 border border-slate-200 rounded-lg p-6 mb-6 select-text">
+                <div className="flex-1 min-h-0 overflow-y-auto bg-slate-50 border border-slate-200 rounded-lg p-[clamp(0.75rem,2vw,1.25rem)] mb-[clamp(0.75rem,2vh,1.25rem)] select-text">
                     {viewMode === 'code' ? (
                         <div className="font-mono text-sm text-slate-800 whitespace-pre-wrap">
                             {markdownText}
@@ -755,6 +840,13 @@ function AppContent() {
     const { owner: routeOwner, repo: routeRepo } = useParams();
     const navigate = useNavigate();
 
+    // Dynamically update document headers, canonical and Schema.org structured data
+    useDocumentSEO(
+        'seo.home.title',
+        'seo.home.desc',
+        routeOwner && routeRepo ? `/${routeOwner}/${routeRepo}` : '/'
+    );
+
     const translatePrerequisite = (req: string) => {
         if (req.startsWith("REQ_JAVA_")) {
             const ver = req.replace("REQ_JAVA_", "");
@@ -1085,16 +1177,16 @@ function AppContent() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans py-[clamp(1rem,4vh,3rem)] px-[clamp(0.5rem,3vw,1.5rem)]">
+            <main className="w-[min(100%,56rem)] mx-auto flex flex-col gap-[clamp(0.75rem,2.5vh,1.5rem)]">
 
                 {/* Header Bar */}
-                <div className="flex justify-between items-center mb-10 bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-[clamp(0.75rem,2vw,1.25rem)] rounded-xl border border-slate-200/60 shadow-sm">
                     <div>
-                        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        <h1 className="text-fluid-title font-extrabold text-slate-900 tracking-tight">
                             {t('title')}
                         </h1>
-                        <p className="text-slate-500 text-xs mt-1">
+                        <p className="text-slate-500 text-fluid-xs mt-0.5">
                             {t('subtitle')}
                         </p>
                     </div>
@@ -1118,6 +1210,7 @@ function AppContent() {
                                         setIsProfileModalOpen(true);
                                     }}
                                     className="text-sm font-semibold text-slate-700 hover:text-slate-900 focus:outline-none flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0 font-sans"
+                                    aria-label={t('profileSettings') || 'Profile Settings'}
                                 >
                                     <span>{username}</span>
                                     <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
@@ -1161,14 +1254,25 @@ function AppContent() {
                                 )}
                             </button>
                         ) : (
-                            <div className="w-32 h-8 bg-slate-100 animate-pulse rounded-lg"></div>
+                            <>
+                                <div>
+                                    <div className="bg-slate-100 animate-pulse rounded-lg p-2">{t('errorGithubAccount')}</div>
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>
 
+                {isAuthenticated === null && (
+                    <div className="bg-yellow-50 text-yellow-700 border border-yellow-200 p-4 rounded-xl flex items-center gap-3 mb-6 shadow-sm">
+                        <InfoIcon className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+                        <p className="text-sm">{t('errorGithubAccountDesc')}</p>
+                    </div>
+                )}
+
                 {/* Formulaire de recherche */}
-                <form onSubmit={handleSearchSubmit} className={`bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-6 transition-opacity ${isAuthenticated !== true ? 'opacity-80' : ''}`}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <form onSubmit={handleSearchSubmit} className={`bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm transition-opacity flex flex-col gap-4 ${isAuthenticated !== true ? 'opacity-80' : ''}`}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                                 {t('ownerLabel')}
@@ -1180,7 +1284,7 @@ function AppContent() {
                                 onKeyDown={handleKeyDown}
                                 disabled={isAuthenticated !== true}
                                 placeholder={t('ownerPlaceholder')}
-                                className="w-full px-4 py-3 rounded-lg border border-slate-200 text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                className="w-full px-[clamp(0.75rem,2vw,1rem)] py-[clamp(0.5rem,1.5vh,0.75rem)] rounded-lg border border-slate-200 text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed text-fluid-body"
                             />
                         </div>
                         <div>
@@ -1194,7 +1298,7 @@ function AppContent() {
                                 onKeyDown={handleKeyDown}
                                 disabled={isAuthenticated !== true}
                                 placeholder={t('repoPlaceholder')}
-                                className="w-full px-4 py-3 rounded-lg border border-slate-200 text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                className="w-full px-[clamp(0.75rem,2vw,1rem)] py-[clamp(0.5rem,1.5vh,0.75rem)] rounded-lg border border-slate-200 text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed text-fluid-body"
                             />
                         </div>
                     </div>
@@ -1202,7 +1306,7 @@ function AppContent() {
                     <button
                         type="submit"
                         disabled={loading || isAuthenticated !== true || !isBackendReady}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed border disabled:border-slate-200/60"
+                        className="w-full flex items-center justify-center gap-2 px-6 py-[clamp(0.5rem,1.5vh,0.75rem)] rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition-all cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed border disabled:border-slate-200/60 text-fluid-body"
                     >
                         {loading ? (
                             <>
@@ -1218,15 +1322,15 @@ function AppContent() {
                     </button>
 
                     {isAuthenticated === false && (
-                        <p className="text-center text-xs text-amber-600 font-semibold mt-3">
+                        <p className="text-center text-fluid-xs text-amber-600 font-semibold mt-1">
                             {t('loginRequired')}
                         </p>
                     )}
 
                     {/* Historique tag-pills */}
                     {activeHistory.length > 0 && (
-                        <div className="mt-6 pt-4 border-t border-slate-100">
-                            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <div className="mt-4 pt-4 border-t border-slate-100">
+                            <h3 className="text-fluid-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                                 <HistoryIcon />
                                 <span>{t('recentSearchesTitle')}</span>
                             </h3>
@@ -1236,7 +1340,7 @@ function AppContent() {
                                         type="button"
                                         key={idx}
                                         onClick={() => navigate(`/${item.owner}/${item.repo}`)}
-                                        className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 text-sm font-medium transition-colors cursor-pointer border border-slate-200/50"
+                                        className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 text-fluid-body font-medium transition-colors cursor-pointer border border-slate-200/50"
                                     >
                                         {item.owner}/{item.repo}
                                     </button>
@@ -1248,29 +1352,29 @@ function AppContent() {
 
                 {/* Messages d'erreur */}
                 {error && (
-                    <div className="bg-red-50 text-red-700 border border-red-200 p-4 rounded-xl flex items-start gap-3 mb-6 shadow-sm">
+                    <div className="bg-red-50 text-red-700 border border-red-200 p-[clamp(0.75rem,2vw,1.25rem)] rounded-xl flex items-start gap-3 shadow-sm">
                         <ErrorIcon className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                         <div>
-                            <h4 className="font-semibold text-red-800">{t('errorTitle')}</h4>
-                            <p className="text-sm mt-0.5">{t(error)}</p>
+                            <h4 className="font-semibold text-red-800 text-fluid-body">{t('errorTitle')}</h4>
+                            <p className="text-fluid-body mt-0.5">{t(error)}</p>
                         </div>
                     </div>
                 )}
 
                 {/* Exponential Backoff Retries Info */}
                 {loading && retryAttempt > 0 && (
-                    <div className="bg-blue-50 text-blue-700 border border-blue-200 p-4 rounded-xl flex items-center gap-3 mb-6 shadow-sm animate-pulse">
+                    <div className="bg-blue-50 text-blue-700 border border-blue-200 p-[clamp(0.75rem,2vw,1.25rem)] rounded-xl flex items-center gap-3 shadow-sm animate-pulse">
                         <LoadingSpinner className="w-5 h-5 text-blue-500 shrink-0" />
                         <div>
-                            <p className="font-medium">{t('syncing', { attempt: retryAttempt })}</p>
+                            <p className="font-medium text-fluid-body">{t('syncing', { attempt: retryAttempt })}</p>
                         </div>
                     </div>
                 )}
 
                 {/* Dashboard principal / Skeleton Loader */}
-                <div className="mt-8">
+                <div className="flex flex-col gap-[clamp(0.75rem,2.5vh,1.5rem)]">
                     {loading ? (
-                        <div className="space-y-6">
+                        <div className="flex flex-col gap-6">
                             <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm animate-pulse">
                                 <div className="h-5 bg-slate-200 rounded w-1/4 mb-4"></div>
                                 <div className="h-4 bg-slate-200 rounded w-full mb-2"></div>
@@ -1306,25 +1410,25 @@ function AppContent() {
                             </div>
 
                             {/* SECTION 1: Le Readme Dynamique */}
-                            <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
+                            <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                <div className="flex items-center gap-2.5 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
                                     <InfoIcon className="text-slate-400" />
-                                    <h2 className="text-xl font-bold text-slate-900">{t('cardTitle')}</h2>
+                                    <h2 className="text-fluid-h2 font-bold text-slate-900">{t('cardTitle')}</h2>
                                 </div>
 
-                                <p className="text-slate-700 leading-relaxed text-base mb-6">
+                                <p className="text-slate-700 leading-relaxed text-fluid-body">
                                     {buildSemanticSummary(analysis.identity.summary, t)}
                                 </p>
 
-                                <div className="mb-6">
-                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                                <div>
+                                    <h3 className="text-fluid-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                                         {t('stackTitle')}
-                                    </h4>
+                                    </h3>
                                     <div className="flex flex-wrap gap-2">
                                         {analysis.identity.stack.map((item, idx) => (
                                             <span
                                                 key={idx}
-                                                className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100"
+                                                className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 text-fluid-xs font-medium border border-blue-100"
                                             >
                                                 {item.name} v{item.version} <span className="text-blue-400 ml-1.5 font-normal">({t(item.type)})</span>
                                             </span>
@@ -1333,14 +1437,14 @@ function AppContent() {
                                 </div>
 
                                 <div>
-                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                                    <h3 className="text-fluid-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                                         {t('infraTitle')}
-                                    </h4>
+                                    </h3>
                                     <div className="flex flex-wrap gap-2">
                                         {analysis.identity.infrastructure.map((item, idx) => (
                                             <span
                                                 key={idx}
-                                                className="inline-flex items-center px-3 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200"
+                                                className="inline-flex items-center px-3 py-1 rounded-md bg-slate-100 text-slate-700 text-fluid-xs font-medium border border-slate-200"
                                                 title={t(item.description)}
                                             >
                                                 {item.name} <span className="text-slate-400 ml-1.5 font-normal">({t(item.description)})</span>
@@ -1351,20 +1455,20 @@ function AppContent() {
                             </section>
 
                             {/* SECTION 2: Configuration & Prérequis */}
-                            <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
+                            <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                <div className="flex items-center gap-2.5 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
                                     <SettingsIcon className="text-slate-400" />
-                                    <h2 className="text-xl font-bold text-slate-900">{t('manifestTitle')}</h2>
+                                    <h2 className="text-fluid-h2 font-bold text-slate-900">{t('manifestTitle')}</h2>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="md:col-span-1 border-r border-slate-100 pr-6">
-                                        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-[clamp(1rem,3vw,1.75rem)]">
+                                    <div className="md:col-span-1 md:border-r border-slate-100 pr-0 md:pr-6 flex flex-col gap-2">
+                                        <h3 className="text-fluid-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                                             {t('prerequisites')}
-                                        </h4>
-                                        <ul className="space-y-2">
+                                        </h3>
+                                        <ul className="flex flex-col gap-2">
                                             {analysis.configManifest.prerequisites.map((req, idx) => (
-                                                <li key={idx} className="flex items-start gap-2 text-sm text-slate-600 font-medium">
+                                                <li key={idx} className="flex items-start gap-2 text-fluid-body text-slate-600 font-medium">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></span>
                                                     <span>{translatePrerequisite(req)}</span>
                                                 </li>
@@ -1372,24 +1476,24 @@ function AppContent() {
                                         </ul>
                                     </div>
 
-                                    <div className="md:col-span-2">
-                                        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                                    <div className="md:col-span-2 flex flex-col gap-2">
+                                        <h3 className="text-fluid-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                                             {t('envVars')}
-                                        </h4>
-                                        <div className="overflow-x-auto">
-                                            <table className="min-w-full divide-y divide-slate-100">
+                                        </h3>
+                                        <div className="w-full overflow-x-auto rounded-lg border border-slate-100">
+                                            <table className="min-w-[max(100%,35rem)] divide-y divide-slate-100">
                                                 <thead>
                                                     <tr>
-                                                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('envVarName')}</th>
-                                                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('envVarSource')}</th>
-                                                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('envVarDesc')}</th>
+                                                        <th className="px-3 py-2 text-left text-fluid-xs font-semibold text-slate-400 uppercase tracking-wider">{t('envVarName')}</th>
+                                                        <th className="px-3 py-2 text-left text-fluid-xs font-semibold text-slate-400 uppercase tracking-wider">{t('envVarSource')}</th>
+                                                        <th className="px-3 py-2 text-left text-fluid-xs font-semibold text-slate-400 uppercase tracking-wider">{t('envVarDesc')}</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100 text-sm">
+                                                <tbody className="divide-y divide-slate-100 text-fluid-body">
                                                     {analysis.configManifest.variables.map((v, idx) => (
                                                         <tr key={idx} className="hover:bg-slate-50/50">
                                                             <td className="px-3 py-2 font-mono text-slate-800 font-medium">{v.name === "NONE" ? t("NONE") : v.name}</td>
-                                                            <td className="px-3 py-2 text-slate-400 font-mono text-xs">{v.sourceFile}</td>
+                                                            <td className="px-3 py-2 text-slate-400 font-mono text-fluid-xs">{v.sourceFile}</td>
                                                             <td className="px-3 py-2 text-slate-500">{t(v.description)}</td>
                                                         </tr>
                                                     ))}
@@ -1402,20 +1506,20 @@ function AppContent() {
 
                             {/* SECTION V3-1: Démarrage Rapide */}
                             {analysis.quickStart && (
-                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
+                                <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
                                         <div className="flex items-center gap-2.5">
                                             <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                                                 <polygon points="5 3 19 12 5 21 5 3" />
                                             </svg>
-                                            <h2 className="text-xl font-bold text-slate-900">{t('quickStartTitle')}</h2>
+                                            <h2 className="text-fluid-h2 font-bold text-slate-900">{t('quickStartTitle')}</h2>
                                         </div>
-                                        <div className="flex items-center gap-2 font-sans">
-                                            <label className="text-xs font-semibold text-slate-400 uppercase">{t('pkgManager')}:</label>
+                                        <div className="flex items-center gap-2 text-fluid-xs font-sans">
+                                            <label className="text-fluid-xs font-semibold text-slate-400 uppercase">{t('pkgManager')}:</label>
                                             <select
                                                 value={packageManager}
                                                 onChange={(e) => setPackageManager(e.target.value as any)}
-                                                className="bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer font-sans"
+                                                className="bg-slate-50 border border-slate-200 rounded-md px-2 py-1 text-fluid-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer font-sans"
                                             >
                                                 <option value="native">{t('native')}</option>
                                                 <option value="winget">Windows (Winget)</option>
@@ -1423,16 +1527,16 @@ function AppContent() {
                                             </select>
                                         </div>
                                     </div>
-                                    <p className="text-slate-500 text-xs mb-3 font-sans">
+                                    <p className="text-slate-500 text-fluid-xs font-sans">
                                         {t('quickStartSub')}
                                     </p>
 
                                     {/* Terminal Selector */}
-                                    <div className="flex bg-slate-100 p-1 rounded-md w-fit mb-4 border border-slate-200 font-sans">
+                                    <div className="flex bg-slate-100 p-1 rounded-md w-fit border border-slate-200 font-sans">
                                         <button
                                             type="button"
                                             onClick={() => setTerminalType('bash')}
-                                            className={`text-slate-500 hover:text-slate-700 px-3 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${terminalType === 'bash' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
+                                            className={`text-slate-500 hover:text-slate-700 px-3 py-1 rounded text-fluid-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${terminalType === 'bash' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
                                                 }`}
                                         >
                                             <span>Bash / Zsh (Mac/Linux)</span>
@@ -1440,14 +1544,14 @@ function AppContent() {
                                         <button
                                             type="button"
                                             onClick={() => setTerminalType('powershell')}
-                                            className={`text-slate-500 hover:text-slate-700 px-3 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${terminalType === 'powershell' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
+                                            className={`text-slate-500 hover:text-slate-700 px-3 py-1 rounded text-fluid-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${terminalType === 'powershell' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'border border-transparent'
                                                 }`}
                                         >
                                             <span>PowerShell (Windows)</span>
                                         </button>
                                     </div>
 
-                                    <div className="relative bg-slate-50 border border-slate-200 rounded-lg p-4 font-mono text-xs text-slate-800 whitespace-pre-wrap select-all">
+                                    <div className="relative bg-slate-50 border border-slate-200 rounded-lg p-[clamp(0.75rem,2vw,1.25rem)] font-mono text-fluid-xs text-slate-800 whitespace-pre-wrap select-all">
                                         {(() => {
                                             const rawCmds = packageManager === 'winget' ? analysis.quickStart.wingetCommands :
                                                 packageManager === 'brew' ? analysis.quickStart.brewCommands :
@@ -1471,20 +1575,20 @@ function AppContent() {
                                                     setTimeout(() => setCopiedCode(false), 2000);
                                                 }
                                             }}
-                                            className="absolute top-3 right-3 px-2 py-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded text-[10px] font-semibold transition-colors cursor-pointer font-sans"
+                                            className="absolute top-3 right-3 px-2 py-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded text-fluid-xs font-semibold transition-colors cursor-pointer font-sans"
                                         >
                                             {copiedCode ? t('copied') : t('copy')}
                                         </button>
                                     </div>
 
                                     {analysis.quickStart.hasCommittedEnv && (
-                                        <div className="mt-4 p-4 bg-orange-50 text-orange-900 border border-orange-200 rounded-lg flex items-start gap-3">
+                                        <div className="p-[clamp(0.75rem,2vw,1.25rem)] bg-orange-50 text-orange-900 border border-orange-200 rounded-lg flex items-start gap-3">
                                             <svg className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                                                 <line x1="12" y1="9" x2="12" y2="13" />
                                                 <line x1="12" y1="17" x2="12.01" y2="17" />
                                             </svg>
-                                            <div className="text-xs font-medium font-sans">
+                                            <div className="text-fluid-xs font-medium font-sans">
                                                 {t('ENV_WARNING')}
                                             </div>
                                         </div>
@@ -1493,25 +1597,25 @@ function AppContent() {
                             )}
 
                             {/* SECTION 3: Fichiers Piliers */}
-                            <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
+                            <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                <div className="flex items-center gap-2.5 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
                                     <FolderIcon className="text-slate-400" />
-                                    <h2 className="text-xl font-bold text-slate-900">{t('pivotalFilesTitle')}</h2>
+                                    <h2 className="text-fluid-h2 font-bold text-slate-900">{t('pivotalFilesTitle')}</h2>
                                 </div>
 
-                                <div className="space-y-3">
+                                <div className="flex flex-col gap-3">
                                     {analysis.criticalFiles.map((file, idx) => {
                                         const fileAnnotations = annotations.filter(a => a.filePath === file.path);
                                         return (
                                             <div key={idx} className="border border-slate-200/60 rounded-xl overflow-hidden bg-slate-50/10">
-                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-[clamp(0.5rem,1.5vw,0.75rem)] bg-white hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded bg-slate-50 flex items-center justify-center border border-slate-200/50">
+                                                        <div className="w-8 h-8 rounded bg-slate-50 flex items-center justify-center border border-slate-200/50" aria-hidden="true">
                                                             <CodeIcon className="text-slate-400" />
                                                         </div>
                                                         <div>
                                                             <div className="flex items-center gap-2">
-                                                                <h4 className="font-semibold text-slate-800 text-sm">{file.name}</h4>
+                                                                <h4 className="font-semibold text-slate-800 text-fluid-body">{file.name}</h4>
                                                                 <button
                                                                     onClick={() => {
                                                                         if (activeAnnotationFile === file.path) {
@@ -1620,17 +1724,17 @@ function AppContent() {
 
                             {/* SECTION V3-2: Radar de Dette Technique */}
                             {analysis.technicalDebt && (
-                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                    <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
-                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                    <div className="flex items-center gap-2.5 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
+                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                             <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                         </svg>
                                         <div>
-                                            <h2 className="text-xl font-bold text-slate-900">{t('techDebtTitle')}</h2>
-                                            <p className="text-slate-400 text-xs font-sans mt-0.5">{t('techDebtSub')}</p>
+                                            <h2 className="text-fluid-h2 font-bold text-slate-900">{t('techDebtTitle')}</h2>
+                                            <p className="text-slate-400 text-fluid-xs font-sans mt-0.5">{t('techDebtSub')}</p>
                                         </div>
                                     </div>
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {analysis.technicalDebt.riskyFiles.map((file, idx) => {
                                             const normalizedScore = Math.min(file.riskScore, 100);
                                             let barColor = "bg-slate-300";
@@ -1668,26 +1772,26 @@ function AppContent() {
 
                             {/* SECTION V3-3: Points d'Entrée Applicatifs */}
                             {analysis.entryPoints && analysis.entryPoints.length > 0 && (
-                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                    <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
-                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                    <div className="flex items-center gap-2.5 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
+                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                             <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z" />
                                             <path d="M6 21a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3v12a3 3 0 0 0 3 3z" />
                                         </svg>
                                         <div>
-                                            <h2 className="text-xl font-bold text-slate-900">{t('entryPointsTitle')}</h2>
-                                            <p className="text-slate-400 text-xs font-sans mt-0.5">{t('entryPointsSub')}</p>
+                                            <h2 className="text-fluid-h2 font-bold text-slate-900">{t('entryPointsTitle')}</h2>
+                                            <p className="text-slate-400 text-fluid-xs font-sans mt-0.5">{t('entryPointsSub')}</p>
                                         </div>
                                     </div>
-                                    <div className="border-l-2 border-slate-100 pl-4 space-y-4">
+                                    <div className="border-l-2 border-slate-100 pl-4 flex flex-col gap-4">
                                         {analysis.entryPoints.map((ep, idx) => (
                                             <div key={idx} className="relative flex items-start gap-3">
                                                 <div className="absolute -left-[22px] w-4 h-0.5 bg-slate-200 mt-2"></div>
                                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0"></div>
                                                 <div className="min-w-0">
-                                                    <span className="font-mono text-sm text-slate-800 font-semibold">{ep.name}</span>
-                                                    <span className="text-slate-400 text-xs font-mono ml-2">({ep.path})</span>
-                                                    <p className="text-slate-500 text-xs mt-0.5">{t(ep.description)}</p>
+                                                    <span className="font-mono text-fluid-body text-slate-800 font-semibold">{ep.name}</span>
+                                                    <span className="text-slate-400 text-fluid-xs font-mono ml-2">({ep.path})</span>
+                                                    <p className="text-slate-500 text-fluid-xs mt-0.5">{t(ep.description)}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -1697,19 +1801,19 @@ function AppContent() {
 
                             {/* SECTION 4: Les Gardiens du Temple */}
                             {analysis.topContributors && analysis.topContributors.length > 0 && (
-                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                    <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
-                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                    <div className="flex items-center gap-2.5 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
+                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                                             <circle cx="9" cy="7" r="4" />
                                             <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                                             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                                         </svg>
-                                        <h2 className="text-xl font-bold text-slate-900">{t('guardians')}</h2>
+                                        <h2 className="text-fluid-h2 font-bold text-slate-900">{t('guardians')}</h2>
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))] gap-4">
                                         {analysis.topContributors.map((c, idx) => (
-                                            <div key={idx} className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                            <div key={idx} className="flex items-center gap-3 p-[clamp(0.5rem,1.5vw,0.75rem)] rounded-xl border border-slate-100 bg-slate-50/50">
                                                 {c.avatarUrl ? (
                                                     <img src={c.avatarUrl} alt={c.name} className="w-9 h-9 rounded-full border border-slate-200 shrink-0" />
                                                 ) : (
@@ -1718,8 +1822,8 @@ function AppContent() {
                                                     </div>
                                                 )}
                                                 <div className="min-w-0">
-                                                    <h4 className="font-semibold text-slate-800 text-sm truncate">{c.name}</h4>
-                                                    <p className="text-slate-400 text-xs">{c.commitCount} {t('commitsCount')}</p>
+                                                    <h4 className="font-semibold text-slate-800 text-fluid-body truncate">{c.name}</h4>
+                                                    <p className="text-slate-400 text-fluid-xs">{c.commitCount} {t('commitsCount')}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -1728,61 +1832,61 @@ function AppContent() {
                             )}
 
                             {/* SECTION 5: Radar de Dépendances Majeures */}
-                            <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
+                            <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                <div className="flex items-center gap-2.5 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
                                     <CpuIcon className="text-slate-400" />
-                                    <h2 className="text-xl font-bold text-slate-900">{t('radarTitle')}</h2>
+                                    <h2 className="text-fluid-h2 font-bold text-slate-900">{t('radarTitle')}</h2>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                                    <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/40">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('securityAuth')}</h3>
+                                <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))] gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                    <div className="bg-slate-50/50 p-[clamp(0.75rem,1.5vw,1rem)] rounded-xl border border-slate-200/40 flex flex-col gap-2">
+                                        <h3 className="text-fluid-xs font-bold text-slate-400 uppercase tracking-wider">{t('securityAuth')}</h3>
                                         <div className="flex flex-col gap-2">
                                             {analysis.dependencies.security.length > 0 && analysis.dependencies.security[0] !== "UNDETECTED" ? (
                                                 analysis.dependencies.security.map((dep, idx) => (
-                                                    <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm font-mono truncate">{dep}</span>
+                                                    <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-fluid-xs font-medium shadow-sm font-mono truncate">{dep}</span>
                                                 ))
                                             ) : (
-                                                <span className="text-slate-400 text-xs italic">{t('noDeps')}</span>
+                                                <span className="text-slate-400 text-fluid-xs italic">{t('noDeps')}</span>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/40">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('dataOrm')}</h3>
+                                    <div className="bg-slate-50/50 p-[clamp(0.75rem,1.5vw,1rem)] rounded-xl border border-slate-200/40 flex flex-col gap-2">
+                                        <h3 className="text-fluid-xs font-bold text-slate-400 uppercase tracking-wider">{t('dataOrm')}</h3>
                                         <div className="flex flex-col gap-2">
                                             {analysis.dependencies.persistence.length > 0 && analysis.dependencies.persistence[0] !== "UNDETECTED" ? (
                                                 analysis.dependencies.persistence.map((dep, idx) => (
-                                                    <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm font-mono truncate">{dep}</span>
+                                                    <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-fluid-xs font-medium shadow-sm font-mono truncate">{dep}</span>
                                                 ))
                                             ) : (
-                                                <span className="text-slate-400 text-xs italic">{t('noDeps')}</span>
+                                                <span className="text-slate-400 text-fluid-xs italic">{t('noDeps')}</span>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/40">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('stateManagement')}</h3>
+                                    <div className="bg-slate-50/50 p-[clamp(0.75rem,1.5vw,1rem)] rounded-xl border border-slate-200/40 flex flex-col gap-2">
+                                        <h3 className="text-fluid-xs font-bold text-slate-400 uppercase tracking-wider">{t('stateManagement')}</h3>
                                         <div className="flex flex-col gap-2">
                                             {analysis.dependencies.state.length > 0 && analysis.dependencies.state[0] !== "UNDETECTED" ? (
                                                 analysis.dependencies.state.map((dep, idx) => (
-                                                    <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm font-mono truncate">{dep}</span>
+                                                    <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-fluid-xs font-medium shadow-sm font-mono truncate">{dep}</span>
                                                 ))
                                             ) : (
-                                                <span className="text-slate-400 text-xs italic">{t('noDeps')}</span>
+                                                <span className="text-slate-400 text-fluid-xs italic">{t('noDeps')}</span>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/40">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('criticalTools')}</h3>
+                                    <div className="bg-slate-50/50 p-[clamp(0.75rem,1.5vw,1rem)] rounded-xl border border-slate-200/40 flex flex-col gap-2">
+                                        <h3 className="text-fluid-xs font-bold text-slate-400 uppercase tracking-wider">{t('criticalTools')}</h3>
                                         <div className="flex flex-col gap-2">
                                             {analysis.dependencies.tools.length > 0 && analysis.dependencies.tools[0] !== "UNDETECTED" ? (
                                                 analysis.dependencies.tools.map((dep, idx) => (
-                                                    <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium shadow-sm font-mono truncate">{dep}</span>
+                                                    <span key={idx} className="px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-slate-700 text-fluid-xs font-medium shadow-sm font-mono truncate">{dep}</span>
                                                 ))
                                             ) : (
-                                                <span className="text-slate-400 text-xs italic">{t('noDeps')}</span>
+                                                <span className="text-slate-400 text-fluid-xs italic">{t('noDeps')}</span>
                                             )}
                                         </div>
                                     </div>
@@ -1791,29 +1895,29 @@ function AppContent() {
 
                             {/* SECTION V3-4: Audit de Conformité Légale */}
                             {analysis.licenceAudit && (
-                                <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm animate-fade-in">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
+                                <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)] animate-fade-in">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
                                         <div className="flex items-center gap-2.5">
-                                            <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                                            <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                                 <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                             </svg>
                                             <div>
-                                                <h2 className="text-xl font-bold text-slate-900">{t('licenceTitle')}</h2>
-                                                <p className="text-slate-400 text-xs font-sans mt-0.5">{t('licenceSub')}</p>
+                                                <h2 className="text-fluid-h2 font-bold text-slate-900">{t('licenceTitle')}</h2>
+                                                <p className="text-slate-400 text-fluid-xs font-sans mt-0.5">{t('licenceSub')}</p>
                                             </div>
                                         </div>
                                         <div className="flex flex-col sm:items-end font-sans">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${analysis.licenceAudit.globalStatus === "COPYLEFT_WARNING"
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-fluid-xs font-bold border ${analysis.licenceAudit.globalStatus === "COPYLEFT_WARNING"
                                                 ? "bg-amber-50 text-amber-700 border-amber-100"
                                                 : "bg-emerald-50 text-emerald-700 border-emerald-100"
                                                 }`}>
                                                 {t(analysis.licenceAudit.globalStatus)}
                                             </span>
-                                            <span className="text-[10px] text-slate-400 mt-1 font-mono font-medium">{t('globalLicence')}: {t(analysis.licenceAudit.mainLicence)}</span>
+                                            <span className="text-fluid-xs text-slate-400 mt-1 font-mono font-medium">{t('globalLicence')}: {t(analysis.licenceAudit.mainLicence)}</span>
                                         </div>
                                     </div>
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-slate-100 text-xs text-left">
+                                    <div className="w-full overflow-x-auto rounded-lg border border-slate-100">
+                                        <table className="min-w-[max(100%,35rem)] divide-y divide-slate-100 text-fluid-xs text-left">
                                             <thead>
                                                 <tr>
                                                     <th className="px-3 py-2 font-bold text-slate-400 uppercase tracking-wider">{t('dependency')}</th>
@@ -1843,25 +1947,25 @@ function AppContent() {
                             )}
 
                             {/* SECTION 6: Le Fil d'Ariane */}
-                            <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                <div className="flex items-center gap-2.5 mb-6 border-b border-slate-100 pb-3">
+                            <section className="bg-white p-[clamp(1rem,3vw,1.5rem)] rounded-xl border border-slate-200 shadow-sm flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)]">
+                                <div className="flex items-center gap-2.5 border-b border-slate-100 pb-[clamp(0.5rem,1.5vh,0.75rem)]">
                                     <CalendarIcon className="text-slate-400" />
-                                    <h2 className="text-xl font-bold text-slate-900">{t('timeline')}</h2>
+                                    <h2 className="text-fluid-h2 font-bold text-slate-900">{t('timeline')}</h2>
                                 </div>
 
-                                <div className="relative pl-6 border-l border-slate-200 ml-3 space-y-8">
+                                <div className="relative pl-6 border-l border-slate-200 ml-3 space-y-[clamp(1rem,3vh,2rem)]">
                                     {analysis.decisions.slice().reverse().map((decision, idx) => (
                                         <div key={idx} className="relative">
-                                            <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white shadow-sm"></div>
+                                            <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white shadow-sm" aria-hidden="true"></div>
 
                                             <div>
-                                                <div className="flex items-center gap-3 mb-1">
-                                                    <h4 className="font-bold text-slate-900 text-base leading-tight">
+                                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                    <h3 className="font-bold text-slate-900 text-fluid-body leading-tight">
                                                         {decision.title}
-                                                    </h4>
-                                                    <span className="text-xs text-slate-400 font-mono font-medium">{decision.date}</span>
+                                                    </h3>
+                                                    <span className="text-fluid-xs text-slate-400 font-mono font-medium">{decision.date}</span>
                                                 </div>
-                                                <p className="text-slate-500 text-sm leading-relaxed">{decision.description}</p>
+                                                <p className="text-slate-500 text-fluid-body leading-relaxed">{decision.description}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -1876,7 +1980,7 @@ function AppContent() {
                         </div>
                     )}
                 </div>
-            </div>
+            </main>
             {analysis && (
                 <MarkdownPreviewModal
                     isOpen={isMarkdownModalOpen}

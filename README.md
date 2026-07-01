@@ -57,7 +57,7 @@
 - **Backend API**: Reactive Spring Boot application with WebFlux, Spring Security OAuth2, and Spring Data JPA.
 - **Data Persistence**: Managed PostgreSQL database.
 
-Live Production URL: [https://memoiredecode.eli-dev.fr](https://memoiredecode.eli-dev.fr)
+Live Production URL: [https://code-memory.eli-dev.fr](https://code-memory.eli-dev.fr)
 
 ---
 
@@ -82,13 +82,23 @@ Live Production URL: [https://memoiredecode.eli-dev.fr](https://memoiredecode.el
 
 2. Create a `.env` file at the root using `.env.template` as a model:
    ```env
-   GITHUB_CLIENT_ID=your_github_oauth_id
-   GITHUB_CLIENT_SECRET=your_github_oauth_secret
-   SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/memoiredecode
-   SPRING_DATASOURCE_USERNAME=postgres
-   SPRING_DATASOURCE_PASSWORD=postgres
-   APP_ENCRYPTION_KEY=your_aes_32_character_security_key
-   FRONTEND_URL=http://localhost:5173
+    # Github OAuth 
+    # Tutorial : https://github.com/settings/developers -> New OAuth App 
+    # Homepage URL = http://localhost:8080
+    # Authorization callback URL = http://localhost:8080/login/oauth2/code/github
+    GITHUB_CLIENT_ID=your_github_oauth_id
+    GITHUB_CLIENT_SECRET=your_github_oauth_secret
+
+    # Database
+    SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/
+    SPRING_DATASOURCE_USERNAME=postgres
+    SPRING_DATASOURCE_PASSWORD=postgres
+
+    # App
+    # Tutorial : https://randomkeygen.com/encryption-key
+    APP_ENCRYPTION_KEY=your_aes_32_character_security_key
+
+    FRONTEND_URL=http://localhost:5173
    ```
 
 3. Launch the development servers:
@@ -107,7 +117,7 @@ Live Production URL: [https://memoiredecode.eli-dev.fr](https://memoiredecode.el
 
 ## Legal & Compliance
 
-This platform is operated by **SASU EliDev**. All GitHub Personal Access Tokens submitted by users to increase GitHub API rate limits are encrypted using AES-256 before database persistence. Users can access, edit, or delete their profile information and search history at any time.
+This platform is operated by **[SASU EliDev](https://eli-dev.fr/)**. All GitHub Personal Access Tokens submitted by users to increase GitHub API rate limits are encrypted using AES-256 before database persistence. Users can access, edit, or delete their profile information and search history at any time.
 
 ---
 
